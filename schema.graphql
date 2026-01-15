@@ -1,0 +1,44 @@
+scalar Date
+
+type Item {
+  id: Int!
+  title: String!
+  url: String!
+  description: String!
+  thumbnailUrl: String
+  publishedAt: Date!
+  seenAt: Date
+
+  source: Source!
+}
+
+enum SourceType {
+  Youtube
+}
+
+type Source {
+  id: Int!
+  name: String!
+  description: String
+  thumbnailUrl: String
+  type: SourceType!
+
+  user: User!
+  items: [Item]!
+}
+
+type User {
+  id: Int!
+  email: String!
+
+  sources: [Source]!
+}
+
+type Query {
+  unseen: [Item]
+}
+
+type Mutation {
+  markAsSeen(itemId: Int!, seenAt: Date!): Item!
+  markAsUnseen(itemId: Int!): Item!
+}

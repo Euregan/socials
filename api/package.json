@@ -1,0 +1,28 @@
+{
+  "name": "api",
+  "scripts": {
+    "build": "pnpm install && prisma migrate deploy && prisma generate && enodia && tsc && cp -r ./src/generated ./dist/src/generated",
+    "start": "node ./dist/src"
+  },
+  "packageManager": "pnpm@10.11.1",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.15.30",
+    "enodia": "^0.12.5",
+    "prisma": "^6.9.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "express": "^5.1.0",
+    "express-zod-safe": "^1.5.3",
+    "graphql": "^16.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.25.56"
+  }
+}

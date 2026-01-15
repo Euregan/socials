@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id           Int      @id @default(autoincrement())
+  remoteId     String
+  title        String
+  url          String
+  description  String
+  publishedAt  DateTime
+  thumbnailUrl String?
+
+  sourceId Int
+  source   Source     @relation(fields: [sourceId], references: [id])
+  users    UserItem[]
+
+  @@unique([remoteId, sourceId])
+}
+
+model UserItem {
+  id     Int       @id @default(autoincrement())
+  seenAt DateTime?
+
+  itemId Int
+  userId Int
+  item   Item @relation(fields: [itemId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemId])
+}
+
+enum SourceType {
+  Youtube
+}
+
+model Source {
+  id           Int        @id @default(autoincrement())
+  remoteId     String     @unique
+  name         String
+  description  String?
+  thumbnailUrl String?
+  type         SourceType
+
+  items         Item[]
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id Int @id @default(autoincrement())
+
+  userId   Int
+  sourceId Int
+  user     User   @relation(fields: [userId], references: [id])
+  source   Source @relation(fields: [sourceId], references: [id])
+
+  @@unique([userId, sourceId])
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+
+  googleUserId       String @unique
+  googleAccessToken  String
+  googleRefreshToken String
+
+  subscriptions Subscription[]
+  items         UserItem[]
+}

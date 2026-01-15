@@ -1,0 +1,46 @@
+version: "3.6"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: socials
+      PGPASSWORD: password
+    ports:
+      - 5432:5432
+
+  api:
+    image: node:20
+    user: "node"
+    working_dir: /home/socials/api
+    volumes:
+      - .:/home/socials
+    ports:
+      - 3000:3000
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      API_URL: http://localhost:3000
+      WEB_URL: http://localhost:5173
+      JWT_SECRET: supersecret
+      DATABASE_URL: postgresql://user:password@db:5432/socials
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+    command: npx tsx watch --clear-screen=false src/index.ts
+
+  web:
+    image: node:20
+    user: "node"
+    working_dir: /home/node/socials/web
+    volumes:
+      - .:/home/node/socials
+    ports:
+      - 5173:5173
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_WEB_URL: http://localhost:5173
+      VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    command: npx vite --host

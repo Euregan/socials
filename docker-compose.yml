@@ -29,7 +29,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
-    command: npx tsx watch --clear-screen=false src/index.ts
+    command: npx tsx watch --clear-screen=false src/dev.ts
 
   web:
     image: node:20

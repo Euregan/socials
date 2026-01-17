@@ -1,4 +1,4 @@
-import { api } from "./http";
+import { api } from "./app";
 import { sync } from "./sync";
 
 api().catch(console.error);

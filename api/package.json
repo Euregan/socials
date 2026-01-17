@@ -1,7 +1,7 @@
 {
   "name": "api",
   "scripts": {
-    "build": "pnpm install && prisma migrate deploy && prisma generate && enodia && tsc && cp -r ./src/generated ./dist/src/generated",
+    "build": "prisma migrate deploy && prisma generate && enodia",
     "start": "node ./dist/src"
   },
   "packageManager": "pnpm@10.11.1",

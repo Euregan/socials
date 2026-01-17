@@ -20,7 +20,7 @@ export const Feed = () => {
 
   return (
     <div className={style.feed}>
-      <ul className={stack({ gap: "large" })}>
+      <ul className={style.items}>
         {items?.map((item) => (
           <li key={item.id}>
             <ItemCard

@@ -37,22 +37,24 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
   };
 
   return (
-    <div>
-      <div className={style.source}>
-        {item.source.thumbnailUrl && (
-          <img
-            loading="lazy"
-            src={item.source.thumbnailUrl}
-            className={style.sourceThumbnail}
-          />
+    <div className={style.details}>
+      <div className={style.content}>
+        <div className={style.source}>
+          {item.source.thumbnailUrl && (
+            <img
+              loading="lazy"
+              src={item.source.thumbnailUrl}
+              className={style.sourceThumbnail}
+            />
+          )}
+          {item.source.name} - {new Date(item.publishedAt).toLocaleDateString()}
+        </div>
+        <h2>{item.title}</h2>
+        {item.thumbnailUrl && (
+          <img loading="lazy" src={item.thumbnailUrl} className={style.image} />
         )}
-        {item.source.name} - {new Date(item.publishedAt).toLocaleDateString()}
+        <div>{item.description}</div>
       </div>
-      <h2>{item.title}</h2>
-      {item.thumbnailUrl && (
-        <img loading="lazy" src={item.thumbnailUrl} className={style.image} />
-      )}
-      <div>{item.description}</div>
 
       <div className={style.actions}>
         <Button onClick={onPrevious}>Previous</Button>

@@ -1,11 +1,25 @@
 import { style } from "@vanilla-extract/css";
 import { theme } from "../theme.css";
+import { stack } from "../components/utilities.css";
 
 export const feed = style({
   display: "grid",
-  gridTemplateColumns: "1fr 4fr",
+  gridTemplateColumns: "300px auto",
   gap: theme.spacing.large,
+  height: "100%",
+  overflow: "hidden",
 });
+
+export const items = style([
+  stack({ gap: "large" }),
+  {
+    height: "100%",
+    overflow: "auto",
+    // Small hack to keep the scrollbar away from the content
+    paddingRight: `calc(${theme.spacing.large} / 2)`,
+    marginRight: `calc(${theme.spacing.large} / -2)`,
+  },
+]);
 
 export const details = style({
   maxWidth: 800,

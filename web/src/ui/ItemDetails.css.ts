@@ -1,5 +1,11 @@
 import { style } from "@vanilla-extract/css";
-import { row } from "../components/utilities.css";
+import { row, stack } from "../components/utilities.css";
+
+export const details = style([
+  stack({ gap: "medium", verticalAlignement: "split" }),
+]);
+
+export const content = style([stack({ gap: "small" })]);
 
 export const source = style([row({ gap: "small" })]);
 

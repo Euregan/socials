@@ -11,7 +11,14 @@ export const app = style({
   height: "100vh",
 });
 
-export const content = style([stack({ gap: "large" })]);
+export const content = style([
+  stack({ gap: "large" }),
+  {
+    padding: theme.spacing.large,
+    maxHeight: "100vh",
+    boxSizing: "border-box",
+  },
+]);
 
 globalStyle("h1, h2, h3, h4, h5, h6", {
   margin: 0,

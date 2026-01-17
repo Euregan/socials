@@ -15,6 +15,9 @@ export const stack = recipe({
       medium: { gap: theme.spacing.medium },
       large: { gap: theme.spacing.large },
     },
+    verticalAlignement: {
+      split: { justifyContent: "space-between" },
+    },
   },
   defaultVariants: {
     gap: "medium",

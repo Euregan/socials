@@ -7,7 +7,7 @@ export const app = style({
   color: theme.color.foreground.default,
 
   display: "grid",
-  gridTemplateColumns: "60px auto",
+  gridTemplateColumns: `calc(36px + 2 * ${theme.spacing.medium}) auto`,
   height: "100vh",
 });
 

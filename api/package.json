@@ -23,6 +23,7 @@
     "express-zod-safe": "^1.5.3",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
+    "rss-parser": "^3.13.0",
     "zod": "^3.25.56"
   }
 }

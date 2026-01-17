@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import * as style from "./Button.css";
 import type { LucideProps } from "lucide-react";
 
 type ButtonProps = {
-  children: string;
+  children: ReactNode;
   onClick: () => unknown | Promise<unknown>;
   icon?: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>

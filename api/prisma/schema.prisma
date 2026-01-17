@@ -38,6 +38,7 @@ model UserItem {
 
 enum SourceType {
   Youtube
+  RSS
 }
 
 model Source {

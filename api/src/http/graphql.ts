@@ -2,6 +2,8 @@ import express from "express";
 import { server } from "../graphql";
 import jsonwebtoken from "jsonwebtoken";
 import { db } from "../database";
+import { fetchFeed } from "../externalApi/rss";
+import { SourceType } from "../generated/prisma";
 
 const handler = server({
   instantiateContext: (request) => {
@@ -73,6 +75,70 @@ const handler = server({
       });
 
       return db.item.findUniqueOrThrow({ where: { id: itemId } });
+    },
+    addRssFeed: async ({ url }, { userId }) => {
+      const feed = await fetchFeed(url);
+
+      const source = await db.source.upsert({
+        where: { remoteId: url },
+        create: {
+          remoteId: feed.feedUrl ?? url,
+          name: feed.title ?? url,
+          description: feed.description,
+          type: SourceType.RSS,
+        },
+        update: {
+          remoteId: feed.feedUrl ?? url,
+          name: feed.title ?? url,
+          description: feed.description,
+          type: SourceType.RSS,
+        },
+      });
+
+      await db.subscription.create({ data: { sourceId: source.id, userId } });
+
+      const subscriptions = await db.subscription.findMany({
+        where: { sourceId: source.id },
+      });
+
+      for (const rssItem of feed.items) {
+        const item = await db.item.upsert({
+          where: {
+            remoteId_sourceId: {
+              sourceId: source.id,
+              remoteId: rssItem.guid!,
+            },
+          },
+          create: {
+            title: rssItem.title!,
+            remoteId: rssItem.guid!,
+            description: rssItem.content!,
+            publishedAt: new Date(rssItem.pubDate!),
+            url: rssItem.link!,
+            sourceId: source.id,
+          },
+          update: {
+            title: rssItem.title!,
+            remoteId: rssItem.guid!,
+            description: rssItem.content!,
+            publishedAt: new Date(rssItem.pubDate!),
+            url: rssItem.link!,
+            sourceId: source.id,
+          },
+        });
+
+        for (const subscription of subscriptions) {
+          await db.userItem.upsert({
+            where: {
+              userId_itemId: { userId: subscription.userId, itemId: item.id },
+            },
+            create: { userId: subscription.userId, itemId: item.id },
+            update: { userId: subscription.userId, itemId: item.id },
+          });
+        }
+      }
+
+      return source;
     },
   },
 });

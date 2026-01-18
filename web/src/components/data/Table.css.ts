@@ -23,7 +23,7 @@ export const header = style({
 });
 
 export const cell = style([
-  row({ verticalAlignement: "center" }),
+  row({ verticalAlignment: "center" }),
   {
     padding: theme.spacing.small,
     borderTop: theme.border.default,

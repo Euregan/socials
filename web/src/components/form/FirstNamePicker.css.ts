@@ -5,7 +5,7 @@ import { theme } from "../../theme.css";
 
 export const picker = style([
   input,
-  row({ verticalAlignement: "center" }),
+  row({ verticalAlignment: "center" }),
   { gap: 0 },
 ]);
 

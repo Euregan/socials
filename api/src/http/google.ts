@@ -1,8 +1,10 @@
 import express from "express";
 import validate from "express-zod-safe";
 import { z } from "zod";
-import jsonwebtoken from "jsonwebtoken";
 import { db } from "../database";
+import { getSubscribedChannels } from "../externalApi/google";
+import jsonwebtoken from "jsonwebtoken";
+import { SourceType } from "../generated/prisma";
 
 const googleRouter = express.Router();
 
@@ -51,58 +53,52 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
         })
         .parse(rawGoogleProfile);
 
-      let user = await db.user.findFirst({
-        where: { email: googleProfile.email },
+      const cookies = request.headers.cookie
+        ?.split(";")
+        .map((cookie) => cookie.split("="));
+      const jwt = cookies?.find(([key]) => key === "jwt");
+      const jwtPayload = jsonwebtoken.verify(jwt![1], process.env.JWT_SECRET!);
+
+      const user = await db.user.update({
+        where: { id: (jwtPayload as any).id },
+        data: {
+          googleUserId: googleProfile.id,
+          googleAccessToken: parsedResponse.data.access_token,
+          googleRefreshToken: parsedResponse.data.refresh_token ?? undefined,
+        },
       });
-      if (user) {
-        user = await db.user.update({
-          where: { id: user.id },
-          data: {
-            googleAccessToken: parsedResponse.data.access_token,
-            googleRefreshToken: parsedResponse.data.refresh_token ?? undefined,
+
+      const channels = await getSubscribedChannels(
+        parsedResponse.data.refresh_token!
+      );
+      for (const channel of channels) {
+        const source = await db.source.upsert({
+          where: { remoteId: channel.snippet.resourceId.channelId },
+          create: {
+            name: channel.snippet.title,
+            type: SourceType.Youtube,
+            remoteId: channel.snippet.resourceId.channelId,
+            description: channel.snippet.description,
+            thumbnailUrl: channel.snippet.thumbnails.default.url,
+          },
+          update: {
+            name: channel.snippet.title,
+            type: SourceType.Youtube,
+            remoteId: channel.snippet.resourceId.channelId,
+            description: channel.snippet.description,
+            thumbnailUrl: channel.snippet.thumbnails.default.url,
           },
         });
-      } else {
-        if (!parsedResponse.data.refresh_token) {
-          console.error(
-            "No refresh token was returned by Google when trying to create a user",
-            {
-              user: rawGoogleProfile,
-              token: rawResponse,
-            }
-          );
-          response.status(500).json({
-            message: "Something went wrong while authenticating you",
-          });
-          return;
-        }
 
-        user = await db.user.create({
-          data: {
-            email: googleProfile.email,
-            googleUserId: googleProfile.id,
-            googleAccessToken: parsedResponse.data.access_token,
-            googleRefreshToken: parsedResponse.data.refresh_token,
-          },
+        await db.subscription.upsert({
+          where: { userId_sourceId: { sourceId: source.id, userId: user.id } },
+          create: { sourceId: source.id, userId: user.id },
+          update: {},
         });
       }
-
-      const jwt = jsonwebtoken.sign(
-        {
-          id: user.id,
-          email: user.email,
-        },
-        process.env.JWT_SECRET!
-      );
-
-      response.cookie("jwt", jwt);
-      response.redirect(process.env.WEB_URL!);
-    } else {
-      console.error(parsedResponse.error);
-
-      // TODO: Handle when something went wrong
-      response.redirect(process.env.WEB_URL!);
     }
+
+    response.redirect(process.env.WEB_URL!);
   } catch (error) {
     console.error(error);
     response.status(500).json({});

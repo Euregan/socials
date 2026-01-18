@@ -2,6 +2,14 @@ import { style } from "@vanilla-extract/css";
 import { theme } from "../theme.css";
 import { stack } from "../components/utilities.css";
 
+export const empty = style({
+  height: "100%",
+  textAlign: "center",
+  maxWidth: 800,
+  margin: "auto",
+  fontSize: 18,
+});
+
 export const feed = style({
   display: "grid",
   gridTemplateColumns: "300px auto",

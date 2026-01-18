@@ -1,9 +1,10 @@
 import express from "express";
-import { server } from "../graphql";
+import { DetailedResponse, server } from "../graphql";
 import jsonwebtoken from "jsonwebtoken";
 import { db } from "../database";
 import { fetchFeed } from "../externalApi/rss";
 import { SourceType } from "../generated/prisma";
+import argon2 from "argon2";
 
 const handler = server({
   instantiateContext: (request) => {
@@ -13,15 +14,17 @@ const handler = server({
 
     const jwt = cookies?.find(([key]) => key === "jwt");
 
-    if (!jwt) {
-      // TODO: Handle this better
-      throw new Error("No JWT");
-    }
+    // if (!jwt) {
+    //   // TODO: Handle this better
+    //   throw new Error("No JWT");
+    // }
 
-    const jwtPayload = jsonwebtoken.verify(jwt[1], process.env.JWT_SECRET!);
+    const jwtPayload = jwt
+      ? jsonwebtoken.verify(jwt[1], process.env.JWT_SECRET!)
+      : null;
 
     return {
-      userId: (jwtPayload as any).id,
+      userId: jwtPayload ? ((jwtPayload as any).id as number) : null,
     };
   },
 })({
@@ -30,20 +33,29 @@ const handler = server({
       db.source.findFirstOrThrow({
         where: { items: { some: { id: item.id } } },
       }),
-    seenAt: (item, { userId }) =>
-      db.userItem
+    seenAt: (item, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.userItem
         .findUniqueOrThrow({
           where: { userId_itemId: { userId, itemId: item.id } },
         })
-        .then(({ seenAt }) => seenAt ?? undefined),
+        .then(({ seenAt }) => seenAt ?? undefined);
+    },
   },
   Source: {
-    user: (source, { userId }) =>
-      db.user.findUniqueOrThrow({ where: { id: userId } }),
-    items: (source, { userId }) =>
-      db.item.findMany({
+    user: (source, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.user.findUniqueOrThrow({ where: { id: userId } });
+    },
+    items: (source, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.item.findMany({
         where: { sourceId: source.id, users: { some: { userId } } },
-      }),
+      });
+    },
   },
   User: {
     sources: (user) =>
@@ -53,14 +65,45 @@ const handler = server({
   },
 })({
   Query: {
-    unseen: ({ userId }) =>
-      db.item.findMany({
+    unseen: ({ userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.item.findMany({
         where: { users: { some: { seenAt: null, userId } } },
         orderBy: { publishedAt: "desc" },
-      }),
+      });
+    },
+    sources: ({ userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.source.findMany({
+        where: { subscriptions: { some: { userId } } },
+      });
+    },
   },
   Mutation: {
+    signup: async ({ email, password }) => {
+      const hashedPassword = await argon2.hash(password);
+      const user = await db.user.create({
+        data: { email, password: hashedPassword },
+      });
+
+      return new DetailedResponse({
+        content: user,
+        cookies: {
+          jwt: jsonwebtoken.sign(
+            {
+              id: user.id,
+              email: user.email,
+            },
+            process.env.JWT_SECRET!
+          ),
+        },
+      });
+    },
     markAsSeen: async ({ itemId, seenAt }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
       await db.userItem.updateMany({
         where: { itemId, userId, seenAt: null },
         data: { seenAt },
@@ -69,6 +112,8 @@ const handler = server({
       return db.item.findUniqueOrThrow({ where: { id: itemId } });
     },
     markAsUnseen: async ({ itemId }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
       await db.userItem.updateMany({
         where: { itemId, userId },
         data: { seenAt: null },
@@ -77,6 +122,8 @@ const handler = server({
       return db.item.findUniqueOrThrow({ where: { id: itemId } });
     },
     addRssFeed: async ({ url }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
       const feed = await fetchFeed(url);
 
       const source = await db.source.upsert({
@@ -146,16 +193,16 @@ const handler = server({
 const graphqlRouter = express.Router();
 
 graphqlRouter.post("/", async (request, response) => {
-  const cookies = request.headers.cookie
-    ?.split(";")
-    .map((cookie) => cookie.split("="));
+  // const cookies = request.headers.cookie
+  //   ?.split(";")
+  //   .map((cookie) => cookie.split("="));
 
-  const jwt = cookies?.find(([key]) => key === "jwt");
+  // const jwt = cookies?.find(([key]) => key === "jwt");
 
-  if (!jwt) {
-    response.status(401).json({});
-    return;
-  }
+  // if (!jwt) {
+  //   response.status(401).json({});
+  //   return;
+  // }
 
   try {
     await handler(request, response);

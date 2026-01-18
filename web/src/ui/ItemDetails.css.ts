@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 import { row, stack } from "../components/utilities.css";
 
 export const details = style([
-  stack({ gap: "medium", verticalAlignement: "split" }),
+  stack({ gap: "medium", verticalAlignment: "split" }),
 ]);
 
 export const content = style([stack({ gap: "small" })]);
@@ -27,5 +27,5 @@ export const image = style({
 });
 
 export const actions = style([
-  row({ horizontalAlignement: "right", gap: "medium" }),
+  row({ horizontalAlignment: "right", gap: "medium" }),
 ]);

@@ -3,7 +3,7 @@ import { theme } from "../../theme.css";
 import { row } from "../utilities.css";
 
 export const label = style([
-  row({ gap: "small", verticalAlignement: "center" }),
+  row({ gap: "small", verticalAlignment: "center" }),
   { cursor: "pointer" },
 ]);
 

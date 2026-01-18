@@ -21,6 +21,7 @@ export const button = style({
   transition: ".2s all",
   whiteSpace: "nowrap",
   textDecoration: "none",
+  boxSizing: "border-box",
   selectors: {
     "&:not(:disabled):hover": {
       borderColor: theme.color.foreground.hover,

@@ -36,10 +36,12 @@ type User {
 }
 
 type Query {
-  unseen: [Item]
+  unseen: [Item]!
+  sources: [Source]!
 }
 
 type Mutation {
+  signup(email: String!, password: String!): User!
   markAsSeen(itemId: Int!, seenAt: Date!): Item!
   markAsUnseen(itemId: Int!): Item!
   addRssFeed(url: String!): Source!

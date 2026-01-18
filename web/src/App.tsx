@@ -1,27 +1,31 @@
 import { Route, Switch } from "wouter";
 import { Menu } from "./components/navigation/Menu";
-import { Login } from "./ui/Login";
 import { Feed } from "./pages/Feed";
+import { Signup } from "./pages/Signup";
 import * as style from "./App.css";
 
-const App = () => (
-  <div className={style.app}>
-    <Menu />
+const App = () => {
+  const authentitied = !!document.cookie;
 
-    <main className={style.content}>
-      <Switch>
-        <Route path="/login">
-          <Login />
-        </Route>
+  return (
+    <div className={style.app}>
+      {authentitied && <Menu />}
 
-        <Route path="">
-          <Feed />
-        </Route>
+      <main className={style.content}>
+        <Switch>
+          <Route path="/signup">
+            <Signup />
+          </Route>
 
-        <Route>404: No such page!</Route>
-      </Switch>
-    </main>
-  </div>
-);
+          <Route path="">
+            <Feed />
+          </Route>
+
+          <Route>404: No such page!</Route>
+        </Switch>
+      </main>
+    </div>
+  );
+};
 
 export default App;

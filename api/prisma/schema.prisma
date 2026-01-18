@@ -65,12 +65,13 @@ model Subscription {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
 
-  googleUserId       String @unique
-  googleAccessToken  String
-  googleRefreshToken String
+  googleUserId       String?
+  googleAccessToken  String?
+  googleRefreshToken String?
 
   subscriptions Subscription[]
   items         UserItem[]

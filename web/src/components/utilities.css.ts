@@ -15,8 +15,11 @@ export const stack = recipe({
       medium: { gap: theme.spacing.medium },
       large: { gap: theme.spacing.large },
     },
-    verticalAlignement: {
+    verticalAlignment: {
       split: { justifyContent: "space-between" },
+    },
+    horizontalAlignment: {
+      center: { alignItems: "center" },
     },
   },
   defaultVariants: {
@@ -35,11 +38,11 @@ export const row = recipe({
       medium: { gap: theme.spacing.medium },
       large: { gap: theme.spacing.large },
     },
-    verticalAlignement: {
+    verticalAlignment: {
       center: { alignItems: "center" },
       form: { alignItems: "flex-end" },
     },
-    horizontalAlignement: {
+    horizontalAlignment: {
       spread: { justifyContent: "space-between" },
       right: { justifyContent: "flex-end" },
     },

@@ -4,10 +4,12 @@ import { SourceType } from "../generated/prisma";
 
 export const syncSubscribedChannelsFromYoutube = async () => {
   // TODO: Paginate it to prevent OOM
-  const users = await db.user.findMany();
+  const users = await db.user.findMany({
+    where: { googleRefreshToken: { not: null } },
+  });
 
   for (const user of users) {
-    const channels = await getSubscribedChannels(user.googleRefreshToken);
+    const channels = await getSubscribedChannels(user.googleRefreshToken!);
 
     for (const channel of channels) {
       const source = await db.source.upsert({

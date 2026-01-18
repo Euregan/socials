@@ -3,6 +3,8 @@ import validate from "express-zod-safe";
 import xml from "xml2js";
 import { z } from "zod";
 import { db } from "../database";
+import querystring from "querystring";
+import { SourceType } from "../generated/prisma";
 
 const youtubeRouter = express.Router();
 
@@ -97,5 +99,27 @@ youtubeRouter.get(
     }
   }
 );
+
+youtubeRouter.get("/refresh", async (request, response) => {
+  const sources = await db.source.findMany({
+    where: { type: SourceType.Youtube },
+  });
+
+  for (const source of sources) {
+    await fetch(`https://pubsubhubbub.appspot.com/subscribe`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: querystring.stringify({
+        "hub.mode": "subscribe",
+        "hub.topic": `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${source.remoteId}`,
+        "hub.callback": `https://${process.env.API_URL}/api/webhook/youtube`,
+      }),
+    });
+  }
+
+  return response.status(200).json({});
+});
 
 export default youtubeRouter;

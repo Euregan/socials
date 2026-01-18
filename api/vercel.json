@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/youtube/refresh",
+      "schedule": "30 9 * * *"
+    }
+  ]
+}

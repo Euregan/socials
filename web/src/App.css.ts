@@ -11,6 +11,11 @@ export const app = style({
   height: "100vh",
 });
 
+export const unauthentified = style([
+  stack({ horizontalAlignment: "center" }),
+  { width: "100vw" },
+]);
+
 export const content = style([
   stack({ gap: "large" }),
   {

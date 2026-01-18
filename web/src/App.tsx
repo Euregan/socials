@@ -11,19 +11,27 @@ const App = () => {
     <div className={style.app}>
       {authentitied && <Menu />}
 
-      <main className={style.content}>
-        <Switch>
-          <Route path="/signup">
-            <Signup />
-          </Route>
+      {!authentitied && (
+        <div className={style.unauthentified}>
+          <Signup />
+        </div>
+      )}
 
-          <Route path="">
-            <Feed />
-          </Route>
+      {authentitied && (
+        <main className={style.content}>
+          <Switch>
+            <Route path="/signup">
+              <Signup />
+            </Route>
 
-          <Route>404: No such page!</Route>
-        </Switch>
-      </main>
+            <Route path="">
+              <Feed />
+            </Route>
+
+            <Route>404: No such page!</Route>
+          </Switch>
+        </main>
+      )}
     </div>
   );
 };

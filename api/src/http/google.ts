@@ -5,6 +5,7 @@ import { db } from "../database";
 import { getSubscribedChannels } from "../externalApi/google";
 import jsonwebtoken from "jsonwebtoken";
 import { SourceType } from "../generated/prisma";
+import querystring from "querystring";
 
 const googleRouter = express.Router();
 
@@ -94,6 +95,18 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
           where: { userId_sourceId: { sourceId: source.id, userId: user.id } },
           create: { sourceId: source.id, userId: user.id },
           update: {},
+        });
+
+        await fetch(`https://pubsubhubbub.appspot.com/subscribe`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: querystring.stringify({
+            "hub.mode": "subscribe",
+            "hub.topic": `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${source.remoteId}`,
+            "hub.callback": `https://${process.env.API_URL}/api/webhook/youtube`,
+          }),
         });
       }
     }

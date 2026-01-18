@@ -11,6 +11,7 @@ const googleRouter = express.Router();
 
 const query = z.object({
   code: z.string(),
+  state: z.coerce.number(),
 });
 googleRouter.get("/auth", validate({ query }), async (request, response) => {
   try {
@@ -34,6 +35,7 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
       })
       .safeParse(rawResponse);
 
+    const sources = [];
     if (parsedResponse.success) {
       const rawGoogleProfile = await fetch(
         "https://www.googleapis.com/oauth2/v1/userinfo",
@@ -54,14 +56,8 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
         })
         .parse(rawGoogleProfile);
 
-      const cookies = request.headers.cookie
-        ?.split(";")
-        .map((cookie) => cookie.split("="));
-      const jwt = cookies?.find(([key]) => key === "jwt");
-      const jwtPayload = jsonwebtoken.verify(jwt![1], process.env.JWT_SECRET!);
-
       const user = await db.user.update({
-        where: { id: (jwtPayload as any).id },
+        where: { id: request.query.state },
         data: {
           googleUserId: googleProfile.id,
           googleAccessToken: parsedResponse.data.access_token,
@@ -97,6 +93,14 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
           update: {},
         });
 
+        sources.push(source);
+      }
+    }
+
+    response.redirect(process.env.WEB_URL!);
+
+    if (process.env.NODE_ENV !== "development") {
+      for (const source of sources) {
         await fetch(`https://pubsubhubbub.appspot.com/subscribe`, {
           method: "POST",
           headers: {
@@ -110,8 +114,6 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
         });
       }
     }
-
-    response.redirect(process.env.WEB_URL!);
   } catch (error) {
     console.error(error);
     response.status(500).json({});

@@ -43,6 +43,7 @@ export const Menu = () => {
                   response_type: "code",
                   redirect_uri: `${import.meta.env.VITE_API_URL}/google/auth`,
                   client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                  state: JSON.parse(localStorage.getItem("user")!).id,
                 }
               )}`}
               className={style.button}

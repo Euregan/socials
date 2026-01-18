@@ -8,15 +8,17 @@ export const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [signup] = useSignupMutation(["id"]);
+  const [signup] = useSignupMutation(["id", "email"]);
   const signupAndRedirect = async () => {
-    await signup({ email, password });
+    const user = await signup({ email, password });
+    localStorage.setItem("user", JSON.stringify(user));
     window.location.reload();
   };
 
-  const [login] = useLoginMutation(["id"]);
+  const [login] = useLoginMutation(["id", "email"]);
   const loginAndRedirect = async () => {
-    await login({ email, password });
+    const user = await login({ email, password });
+    localStorage.setItem("user", JSON.stringify(user));
     window.location.reload();
   };
 

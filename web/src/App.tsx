@@ -5,7 +5,7 @@ import { Signup } from "./pages/Signup";
 import * as style from "./App.css";
 
 const App = () => {
-  const authentitied = !!document.cookie;
+  const authentitied = !!localStorage.getItem("user");
 
   return (
     <div className={style.app}>

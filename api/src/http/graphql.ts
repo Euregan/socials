@@ -33,14 +33,14 @@ const handler = server({
       db.source.findFirstOrThrow({
         where: { items: { some: { id: item.id } } },
       }),
-    seenAt: (item, { userId }) => {
+    seenAt: async (item, { userId }) => {
       if (!userId) throw new Error("No JWT");
 
-      return db.userItem
-        .findUniqueOrThrow({
-          where: { userId_itemId: { userId, itemId: item.id } },
-        })
-        .then(({ seenAt }) => seenAt ?? undefined);
+      const { seenAt } = await db.userItem.findUniqueOrThrow({
+        where: { userId_itemId: { userId, itemId: item.id } },
+      });
+
+      return seenAt ?? undefined;
     },
   },
   Source: {
@@ -87,6 +87,32 @@ const handler = server({
       const user = await db.user.create({
         data: { email, password: hashedPassword },
       });
+
+      return new DetailedResponse({
+        content: user,
+        cookies: {
+          jwt: jsonwebtoken.sign(
+            {
+              id: user.id,
+              email: user.email,
+            },
+            process.env.JWT_SECRET!
+          ),
+        },
+      });
+    },
+    login: async ({ email, password }) => {
+      const user = await db.user.findUnique({
+        where: { email },
+      });
+      if (!user) {
+        throw new Error("User not found or password doesn't match");
+      }
+
+      const matches = await argon2.verify(user.password, password);
+      if (!matches) {
+        throw new Error("User not found or password doesn't match");
+      }
 
       return new DetailedResponse({
         content: user,

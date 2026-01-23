@@ -19,7 +19,7 @@ const query = z.union([
 
 youtubeRouter.all(
   "/pubsubhubbub",
-  validate({ query }),
+  validate({ query, body: z.string() }),
   async (request, response) => {
     if (request.query["hub.challenge"]) {
       return response.send(request.query["hub.challenge"]);

@@ -24,56 +24,56 @@ youtubeRouter.get(
 
 youtubeRouter.post(
   "/pubsubhubbub",
-  validate({ body: z.any() }),
+  validate({
+    body: z.object({
+      feed: z.object({
+        entry: z.object({
+          id: z.string(),
+          "yt:videoId": z.string(),
+          "yt:channelId": z.string(),
+          link: z.string(),
+          title: z.string(),
+          published: z.string(),
+          updated: z.string(),
+        }),
+      }),
+    }),
+  }),
   async (request, response) => {
     try {
-      const payload: {
-        feed: {
-          entry: [
-            {
-              id: [string];
-              "yt:videoId": [string];
-              "yt:channelId": [string];
-              link: [string];
-              title: [string];
-              published: [string];
-              updated: [string];
-            },
-          ];
-        };
-      } = await xml.parseStringPromise(request.body);
+      const payload = request.body;
 
-      if (payload.feed.entry[0].link[0].includes("/shorts/")) {
+      if (payload.feed.entry.link.includes("/shorts/")) {
         response.status(200).end();
         return;
       }
 
       const source = await db.source.findUniqueOrThrow({
-        where: { remoteId: payload.feed.entry[0]["yt:channelId"][0] },
+        where: { remoteId: payload.feed.entry["yt:channelId"] },
       });
 
       const item = await db.item.upsert({
         where: {
           remoteId_sourceId: {
-            remoteId: payload.feed.entry[0]["yt:videoId"][0],
+            remoteId: payload.feed.entry["yt:videoId"],
             sourceId: source.id,
           },
         },
         create: {
-          title: payload.feed.entry[0].title[0],
-          remoteId: payload.feed.entry[0]["yt:videoId"][0],
-          publishedAt: new Date(payload.feed.entry[0].published[0]),
-          url: payload.feed.entry[0].link[0],
-          thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry[0]["yt:videoId"][0]}/hqdefault.jpg`,
+          title: payload.feed.entry.title,
+          remoteId: payload.feed.entry["yt:videoId"],
+          publishedAt: new Date(payload.feed.entry.published),
+          url: payload.feed.entry.link,
+          thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry["yt:videoId"]}/hqdefault.jpg`,
           description: "",
           source: { connect: { id: source.id } },
         },
         update: {
-          title: payload.feed.entry[0].title[0],
-          remoteId: payload.feed.entry[0]["yt:videoId"][0],
-          publishedAt: new Date(payload.feed.entry[0].published[0]),
-          url: payload.feed.entry[0].link[0],
-          thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry[0]["yt:videoId"][0]}/hqdefault.jpg`,
+          title: payload.feed.entry.title,
+          remoteId: payload.feed.entry["yt:videoId"],
+          publishedAt: new Date(payload.feed.entry.published),
+          url: payload.feed.entry.link,
+          thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry["yt:videoId"]}/hqdefault.jpg`,
           description: "",
         },
       });

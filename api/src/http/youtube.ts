@@ -92,7 +92,11 @@ youtubeRouter.all(
           });
         }
       } catch (error) {
-        console.log(request.body, typeof request.body, request.query);
+        console.log(
+          JSON.stringify(request.body, null, 2),
+          typeof request.body,
+          request.query,
+        );
         console.error(error);
         // We don't want Youtube to stop sending us updates if we error
         return response.status(200).end();

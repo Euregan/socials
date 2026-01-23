@@ -94,8 +94,7 @@ youtubeRouter.all(
       } catch (error) {
         console.log(
           JSON.stringify(request.body, null, 2),
-          typeof request.body,
-          request.query,
+          JSON.stringify(request.query, null, 2),
         );
         console.error(error);
         // We don't want Youtube to stop sending us updates if we error

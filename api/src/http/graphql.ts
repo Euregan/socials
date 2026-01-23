@@ -80,6 +80,14 @@ const handler = server({
         where: { subscriptions: { some: { userId } } },
       });
     },
+    youtubeChannels: async ({ userId }) => {
+      if (!userId) throw new Error("No JWT");
+      const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
+
+      if (!user.admin) throw new Error("Unauthorized");
+
+      return db.source.findMany({ where: { type: SourceType.Youtube } });
+    },
   },
   Mutation: {
     signup: async ({ email, password }) => {
@@ -96,7 +104,7 @@ const handler = server({
               id: user.id,
               email: user.email,
             },
-            process.env.JWT_SECRET!
+            process.env.JWT_SECRET!,
           ),
         },
       });
@@ -122,7 +130,7 @@ const handler = server({
               id: user.id,
               email: user.email,
             },
-            process.env.JWT_SECRET!
+            process.env.JWT_SECRET!,
           ),
         },
       });

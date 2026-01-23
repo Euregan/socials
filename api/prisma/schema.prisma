@@ -69,6 +69,8 @@ model User {
   email    String @unique
   password String
 
+  admin Boolean @default(false)
+
   googleUserId       String?
   googleAccessToken  String?
   googleRefreshToken String?

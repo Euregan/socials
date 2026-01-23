@@ -23,6 +23,7 @@ type Source {
   description: String
   thumbnailUrl: String
   type: SourceType!
+  remoteId: String!
 
   user: User!
   items: [Item]!
@@ -32,12 +33,16 @@ type User {
   id: Int!
   email: String!
 
+  admin: Boolean!
+
   sources: [Source]!
 }
 
 type Query {
   unseen: [Item]!
   sources: [Source]!
+  # Admin zone
+  youtubeChannels: [Source]!
 }
 
 type Mutation {

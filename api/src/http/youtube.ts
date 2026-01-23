@@ -115,7 +115,7 @@ youtubeRouter.get("/refresh", async (request, response) => {
       body: querystring.stringify({
         "hub.mode": "subscribe",
         "hub.topic": `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${source.remoteId}`,
-        "hub.callback": `https://${process.env.API_URL}/youtube/pubsubhubbub`,
+        "hub.callback": `${process.env.API_URL}/youtube/pubsubhubbub`,
       }),
     });
   }

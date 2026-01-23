@@ -17,7 +17,7 @@ const query = z.union([
   z.object({ "hub.challenge": z.undefined() }),
 ]);
 
-youtubeRouter.get(
+youtubeRouter.all(
   "/pubsubhubbub",
   validate({ query }),
   async (request, response) => {

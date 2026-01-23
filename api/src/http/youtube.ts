@@ -36,7 +36,7 @@ youtubeRouter.get(
                 title: [string];
                 published: [string];
                 updated: [string];
-              }
+              },
             ];
           };
         } = await xml.parseStringPromise(request.body);
@@ -97,7 +97,7 @@ youtubeRouter.get(
         return response.status(200).end();
       }
     }
-  }
+  },
 );
 
 youtubeRouter.get("/refresh", async (request, response) => {
@@ -105,6 +105,7 @@ youtubeRouter.get("/refresh", async (request, response) => {
     where: { type: SourceType.Youtube },
   });
 
+  // TODO: Batch this to stay under 5 minutes (currently 4m20 for one user)
   for (const source of sources) {
     await fetch(`https://pubsubhubbub.appspot.com/subscribe`, {
       method: "POST",
@@ -114,7 +115,7 @@ youtubeRouter.get("/refresh", async (request, response) => {
       body: querystring.stringify({
         "hub.mode": "subscribe",
         "hub.topic": `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${source.remoteId}`,
-        "hub.callback": `https://${process.env.API_URL}/api/webhook/youtube`,
+        "hub.callback": `https://${process.env.API_URL}/youtube/pubsubhubbub`,
       }),
     });
   }

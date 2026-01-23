@@ -12,8 +12,7 @@ services:
       - 5432:5432
 
   api:
-    image: node:20
-    user: "node"
+    image: node:24
     working_dir: /home/socials/api
     volumes:
       - .:/home/socials
@@ -32,8 +31,7 @@ services:
     command: npx tsx watch --clear-screen=false src/dev.ts
 
   web:
-    image: node:20
-    user: "node"
+    image: node:24
     working_dir: /home/node/socials/web
     volumes:
       - .:/home/node/socials

@@ -44,7 +44,7 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${parsedResponse.data.access_token}`,
           },
-        }
+        },
       ).then((response) => response.json());
 
       const googleProfile = z
@@ -66,7 +66,7 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
       });
 
       const channels = await getSubscribedChannels(
-        parsedResponse.data.refresh_token!
+        parsedResponse.data.refresh_token!,
       );
       for (const channel of channels) {
         const source = await db.source.upsert({
@@ -109,7 +109,7 @@ googleRouter.get("/auth", validate({ query }), async (request, response) => {
           body: querystring.stringify({
             "hub.mode": "subscribe",
             "hub.topic": `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${source.remoteId}`,
-            "hub.callback": `https://${process.env.API_URL}/api/webhook/youtube`,
+            "hub.callback": `${process.env.API_URL}/youtube/pubsubhubbub`,
           }),
         });
       }

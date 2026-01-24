@@ -13,7 +13,10 @@ export const fetchFeed = async (url: string) => {
         ? NodeHtmlMarkdown.translate(item.content)
         : "";
 
-      const thumbnail = markdown.match(/^!\[\]\((.+?)\)/)?.[1] ?? null;
+      const thumbnail =
+        markdown.match(/^!\[\]\((.+?)\)/)?.[1] ??
+        markdown.match(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/)?.[1] ??
+        null;
 
       return {
         ...item,

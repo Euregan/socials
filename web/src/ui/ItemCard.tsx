@@ -25,8 +25,8 @@ export const ItemCard = ({ item, onClick }: ItemCardProps) => (
           src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${item.source.id}`}
           className={style.sourceThumbnail}
         />
-      )}{" "}
-      {item.title} - {new Date(item.publishedAt).toLocaleDateString()}
+      )}
+      {item.title}
     </h2>
     {item.hasThumbnail && (
       <img

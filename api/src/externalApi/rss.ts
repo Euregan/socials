@@ -3,11 +3,30 @@ import Parser from "rss-parser";
 
 const rssParser = new Parser();
 
+const getThumbnail = async (url: string) => {
+  const origin = new URL(url).origin;
+
+  const [png, jpg, ico] = await Promise.all([
+    fetch(`${origin}/favicon.png`),
+    fetch(`${origin}/favicon.jpg`),
+    fetch(`${origin}/favicon.ico`),
+  ]);
+
+  return png.status === 200
+    ? `${origin}/favicon.png`
+    : jpg.status === 200
+      ? `${origin}/favicon.jpg`
+      : ico.status === 200
+        ? `${origin}/favicon.ico`
+        : null;
+};
+
 export const fetchFeed = async (url: string) => {
   const feed = await rssParser.parseURL(url);
 
   return {
     ...feed,
+    thumbnail: await getThumbnail(url),
     items: feed.items.map((item) => {
       const markdown = item.content
         ? NodeHtmlMarkdown.translate(item.content)

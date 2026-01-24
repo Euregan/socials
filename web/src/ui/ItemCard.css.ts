@@ -1,5 +1,5 @@
 import { style } from "@vanilla-extract/css";
-import { row, stack } from "../components/utilities.css";
+import { stack } from "../components/utilities.css";
 import { theme } from "../theme.css";
 
 export const item = style([
@@ -7,10 +7,7 @@ export const item = style([
   { textDecoration: "none", color: theme.color.foreground.default },
 ]);
 
-export const title = style([
-  row({ gap: "small" }),
-  { fontSize: 16, fontWeight: 500 },
-]);
+export const title = style({ fontSize: 16, fontWeight: 500 });
 
 export const sourceThumbnail = style({
   borderRadius: 4,
@@ -18,6 +15,9 @@ export const sourceThumbnail = style({
   aspectRatio: "1/1",
   objectFit: "cover",
   height: "1lh",
+
+  float: "left",
+  marginRight: "0.5ch",
 });
 
 export const image = style({

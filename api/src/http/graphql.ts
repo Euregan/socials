@@ -170,12 +170,14 @@ const handler = server({
           remoteId: feed.feedUrl ?? url,
           name: feed.title ?? url,
           description: feed.description,
+          thumbnailUrl: feed.thumbnail,
           type: SourceType.RSS,
         },
         update: {
           remoteId: feed.feedUrl ?? url,
           name: feed.title ?? url,
           description: feed.description,
+          thumbnailUrl: feed.thumbnail,
           type: SourceType.RSS,
         },
       });

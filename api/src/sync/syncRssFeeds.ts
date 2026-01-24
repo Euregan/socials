@@ -11,6 +11,14 @@ export const syncRssFeeds = async () => {
       where: { sourceId: source.id },
     });
 
+    await db.source.update({
+      where: { id: source.id },
+      data: {
+        name: feed.title || undefined,
+        thumbnailUrl: feed.thumbnail,
+      },
+    });
+
     for (const rssItem of feed.items) {
       const item = await db.item.upsert({
         where: {

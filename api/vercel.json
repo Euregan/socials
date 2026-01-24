@@ -3,6 +3,10 @@
     {
       "path": "/youtube/refresh",
       "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/rss/refresh",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

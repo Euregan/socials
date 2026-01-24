@@ -4,6 +4,7 @@ import graphqlRouter from "./http/graphql";
 import cors from "cors";
 import youtubeRouter from "./http/youtube";
 import thumbnailRouter from "./http/thumbnail";
+import rssRouter from "./http/rss";
 
 export const app = express();
 
@@ -19,6 +20,7 @@ app.post("/health", (request, response) => {
 app.use("/google", googleRouter);
 app.use("/youtube", youtubeRouter);
 app.use("/thumbnail", thumbnailRouter);
+app.use("/rss", rssRouter);
 app.use("/graphql", graphqlRouter);
 
 export const api = (): Promise<void> =>

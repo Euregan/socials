@@ -11,51 +11,37 @@ export const syncRssFeeds = async () => {
       where: { sourceId: source.id },
     });
 
-    await db.source.update({
-      where: { id: source.id },
-      data: {
-        name: feed.title || undefined,
-        thumbnailUrl: feed.thumbnail,
-      },
-    });
-
     for (const rssItem of feed.items) {
-      const item = await db.item.upsert({
+      let item = await db.item.findUnique({
         where: {
           remoteId_sourceId: {
             sourceId: source.id,
             remoteId: rssItem.guid!,
           },
         },
-        create: {
-          title: rssItem.title!,
-          remoteId: rssItem.guid!,
-          description: rssItem.content,
-          thumbnailUrl: rssItem.thumbnail,
-          publishedAt: new Date(rssItem.pubDate!),
-          url: rssItem.link!,
-          sourceId: source.id,
-        },
-        update: {
-          title: rssItem.title!,
-          remoteId: rssItem.guid!,
-          description: rssItem.content,
-          thumbnailUrl: rssItem.thumbnail,
-          publishedAt: new Date(rssItem.pubDate!),
-          url: rssItem.link!,
-          sourceId: source.id,
-        },
       });
 
-      for (const subscription of subscriptions) {
-        await db.userItem.upsert({
-          where: {
-            userId_itemId: { userId: subscription.userId, itemId: item.id },
+      if (!item) {
+        item = await db.item.create({
+          data: {
+            title: rssItem.title!,
+            remoteId: rssItem.guid!,
+            description: rssItem.content,
+            thumbnailUrl: rssItem.thumbnail,
+            publishedAt: new Date(rssItem.pubDate!),
+            url: rssItem.link!,
+            sourceId: source.id,
           },
-          create: { userId: subscription.userId, itemId: item.id },
-          update: { userId: subscription.userId, itemId: item.id },
         });
+
+        for (const subscription of subscriptions) {
+          await db.userItem.create({
+            data: { userId: subscription.userId, itemId: item.id },
+          });
+        }
       }
     }
   }
+
+  return sources.length;
 };

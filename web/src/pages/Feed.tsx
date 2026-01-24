@@ -51,9 +51,8 @@ export const Feed = () => {
                   const currentIndex = items?.findIndex(
                     (item) => item.id === selectedItem.id,
                   );
-                  const nextItem = currentIndex
-                    ? items[currentIndex + 1]
-                    : null;
+                  const nextItem =
+                    currentIndex >= 0 ? items[currentIndex + 1] : null;
                   if (nextItem) {
                     setSelectedItem(nextItem);
                   }
@@ -62,9 +61,8 @@ export const Feed = () => {
                   const currentIndex = items?.findIndex(
                     (item) => item.id === selectedItem.id,
                   );
-                  const previousItem = currentIndex
-                    ? items[currentIndex - 1]
-                    : null;
+                  const previousItem =
+                    currentIndex >= 0 ? items[currentIndex - 1] : null;
                   if (previousItem) {
                     setSelectedItem(previousItem);
                   }

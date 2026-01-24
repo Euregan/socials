@@ -1,10 +1,9 @@
 import { style } from "@vanilla-extract/css";
+export { link } from "../navigation/Link.css";
 
 export const markdown = style({});
 
-export const link = style({});
-
-export const bold = style({});
+export const bold = style({ fontWeight: 600 });
 
 export const italic = style({});
 

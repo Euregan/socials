@@ -22,7 +22,8 @@ export const fetchFeed = async (url: string) => {
         ...item,
         content: markdown
           .replace(/^!\[\]\((.+?)\)/, "")
-          .replace(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/, ""),
+          .replace(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/, "")
+          .replace(/^\s+/, ""),
         thumbnail,
       };
     }),

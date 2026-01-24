@@ -9,6 +9,7 @@ export const Markdown = ({ children }: MarkdownProps) => (
     className={style.markdown}
     dangerouslySetInnerHTML={{
       __html: children
+        .replace(/\n/g, "<br/>")
         .replace(/_(.+?)_/g, `<em class="${style.italic}">$1</em>`)
         .replace(/\*\*(.+?)\*\*/g, `<strong class="${style.bold}">$1</strong>`)
         .replace(

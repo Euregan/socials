@@ -40,7 +40,7 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
 
   return (
     <div className={style.details}>
-      <div className={style.content}>
+      <div className={style.item}>
         <div className={style.source}>
           {item.source.hasThumbnail && (
             <img
@@ -52,14 +52,17 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
           {item.source.name} - {new Date(item.publishedAt).toLocaleDateString()}
         </div>
         <h2>{item.title}</h2>
-        {item.hasThumbnail && (
-          <img
-            loading="lazy"
-            src={`${import.meta.env.VITE_API_URL}/thumbnail/item/${item.id}`}
-            className={style.image}
-          />
-        )}
-        {item.description && <Markdown>{item.description}</Markdown>}
+
+        <div className={style.content}>
+          {item.hasThumbnail && (
+            <img
+              loading="lazy"
+              src={`${import.meta.env.VITE_API_URL}/thumbnail/item/${item.id}`}
+              className={style.image}
+            />
+          )}
+          {item.description && <Markdown>{item.description}</Markdown>}
+        </div>
       </div>
 
       <div className={style.actions}>

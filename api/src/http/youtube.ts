@@ -49,6 +49,11 @@ youtubeRouter.post(
     try {
       const payload = request.body;
 
+      if (payload.feed.entry[0].link[0].$.href.includes("/shorts/")) {
+        response.status(200).end();
+        return;
+      }
+
       const source = await db.source.findUniqueOrThrow({
         where: { remoteId: payload.feed.entry[0]["yt:channelid"][0] },
       });

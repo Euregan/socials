@@ -41,17 +41,29 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
   return (
     <div className={style.details}>
       <div className={style.item}>
-        <div className={style.source}>
-          {item.source.hasThumbnail && (
-            <img
-              loading="lazy"
-              src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${item.source.id}`}
-              className={style.sourceThumbnail}
-            />
-          )}
-          {item.source.name} - {new Date(item.publishedAt).toLocaleDateString()}
+        <div className={style.header}>
+          <div className={style.source}>
+            {item.source.hasThumbnail && (
+              <img
+                loading="lazy"
+                src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${item.source.id}`}
+                className={style.sourceThumbnail}
+              />
+            )}
+            {item.source.name} -{" "}
+            {new Date(item.publishedAt).toLocaleDateString()}
+          </div>
+          <div className={style.actions}>
+            <Button onClick={onPrevious}>Previous</Button>
+            <Button onClick={onMarkAsUnseen}>Mark as unseen</Button>
+            <Button onClick={onNext}>Next</Button>
+          </div>
         </div>
-        <h2>{item.title}</h2>
+        <h2>
+          <a className={style.link} href={item.url} target="_blank">
+            {item.title}
+          </a>
+        </h2>
 
         <div className={style.content}>
           {item.hasThumbnail && (
@@ -63,12 +75,6 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
           )}
           {item.description && <Markdown>{item.description}</Markdown>}
         </div>
-      </div>
-
-      <div className={style.actions}>
-        <Button onClick={onPrevious}>Previous</Button>
-        <Button onClick={onMarkAsUnseen}>Mark as unseen</Button>
-        <Button onClick={onNext}>Next</Button>
       </div>
     </div>
   );

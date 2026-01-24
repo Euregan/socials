@@ -1,5 +1,12 @@
-import { globalStyle, style } from "@vanilla-extract/css";
+import {
+  createVar,
+  fallbackVar,
+  globalStyle,
+  style,
+} from "@vanilla-extract/css";
 import { theme } from "../../theme.css";
+
+export const height = createVar();
 
 export const button = style({
   background: "white",
@@ -7,7 +14,7 @@ export const button = style({
   fontWeight: 500,
   fontSize: 14,
   lineHeight: 1,
-  height: 36,
+  height: fallbackVar(height, "36px"),
   display: "flex",
   flexDirection: "row",
   justifyContent: "center",

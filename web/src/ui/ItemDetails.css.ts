@@ -1,6 +1,7 @@
 import { style } from "@vanilla-extract/css";
 import { row, stack } from "../components/utilities.css";
 import { theme } from "../theme.css";
+import * as button from "../components/form/Button.css";
 
 export const details = style([
   stack({ gap: "medium", verticalAlignment: "split" }),
@@ -8,13 +9,25 @@ export const details = style([
 
 export const item = style([stack({ gap: "small" })]);
 
+export const header = style([
+  row({
+    gap: "small",
+    horizontalAlignment: "spread",
+    verticalAlignment: "center",
+  }),
+  {
+    vars: { [button.height]: "24px" },
+  },
+]);
+
 export const source = style([row({ gap: "small" })]);
 
-export const content = style({
-  // display: "grid",
-  // gridTemplateColumns: "1fr 1fr",
-  // gap: theme.spacing.medium,
+export const link = style({
+  textDecoration: "none",
+  color: theme.color.foreground.active,
 });
+
+export const content = style({});
 
 export const sourceThumbnail = style({
   borderRadius: 4,

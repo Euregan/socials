@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useMarkAsSeenMutation, useMarkAsUnseenMutation } from "../api";
 import * as style from "./ItemDetails.css";
 import { Button } from "../components/form/Button";
+import { Markdown } from "../components/data/Markdown";
 
 export type Item = {
   id: number;
@@ -58,7 +59,7 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
             className={style.image}
           />
         )}
-        <div>{item.description}</div>
+        {item.description && <Markdown>{item.description}</Markdown>}
       </div>
 
       <div className={style.actions}>

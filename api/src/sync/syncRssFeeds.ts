@@ -22,7 +22,8 @@ export const syncRssFeeds = async () => {
         create: {
           title: rssItem.title!,
           remoteId: rssItem.guid!,
-          description: rssItem.content!,
+          description: rssItem.content,
+          thumbnailUrl: rssItem.thumbnail,
           publishedAt: new Date(rssItem.pubDate!),
           url: rssItem.link!,
           sourceId: source.id,
@@ -30,7 +31,8 @@ export const syncRssFeeds = async () => {
         update: {
           title: rssItem.title!,
           remoteId: rssItem.guid!,
-          description: rssItem.content!,
+          description: rssItem.content,
+          thumbnailUrl: rssItem.thumbnail,
           publishedAt: new Date(rssItem.pubDate!),
           url: rssItem.link!,
           sourceId: source.id,

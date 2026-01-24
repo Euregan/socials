@@ -197,7 +197,8 @@ const handler = server({
           create: {
             title: rssItem.title!,
             remoteId: rssItem.guid!,
-            description: rssItem.content!,
+            description: rssItem.content,
+            thumbnailUrl: rssItem.thumbnail,
             publishedAt: new Date(rssItem.pubDate!),
             url: rssItem.link!,
             sourceId: source.id,
@@ -205,7 +206,8 @@ const handler = server({
           update: {
             title: rssItem.title!,
             remoteId: rssItem.guid!,
-            description: rssItem.content!,
+            description: rssItem.content,
+            thumbnailUrl: rssItem.thumbnail,
             publishedAt: new Date(rssItem.pubDate!),
             url: rssItem.link!,
             sourceId: source.id,

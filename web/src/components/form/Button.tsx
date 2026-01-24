@@ -23,7 +23,7 @@ export const Button = ({ children, onClick, icon: Icon }: ButtonProps) => {
       }}
       disabled={loading}
     >
-      {!loading && <span className={style.label}>{children}</span>}
+      {!loading && children}
       {!loading && Icon && <Icon />}
       {loading && "loading"}
     </button>

@@ -30,3 +30,7 @@ globalStyle("h1, h2, h3, h4, h5, h6", {
 });
 
 globalStyle("body", { margin: 0 });
+
+globalStyle("h2", {
+  fontWeight: 500,
+});

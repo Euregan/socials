@@ -10,6 +10,7 @@ export const menu = style([
     borderRight: theme.border.default,
     boxShadow: "0px 1px 2px 0px #1018280D",
     height: "100%",
+    boxSizing: "border-box",
     overflow: "auto",
   },
 ]);

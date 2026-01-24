@@ -29,28 +29,31 @@ export const button = style({
   whiteSpace: "nowrap",
   textDecoration: "none",
   boxSizing: "border-box",
+
+  ":hover": {
+    borderColor: theme.color.foreground.hover,
+    background: theme.color.background.hover,
+  },
+
   selectors: {
-    "&:not(:disabled):hover": {
-      borderColor: theme.color.foreground.hover,
-      background: theme.color.background.hover,
-    },
     "table &": {
       height: 24,
       width: 24,
       padding: 0,
     },
-  },
-  ":disabled": {
-    cursor: "default",
-    borderColor: theme.color.foreground.disabled,
-    color: theme.color.foreground.disabled,
-  },
-});
-
-export const label = style({
-  selectors: {
-    "table &": {
-      display: "none",
+    "&:has(svg:only-child)": {
+      padding: 0,
+      fontSize: 24,
+      aspectRatio: "1/1",
+    },
+    "&:disabled, &[aria-disabled=true]": {
+      cursor: "default",
+      borderColor: theme.color.foreground.disabled,
+      color: theme.color.foreground.disabled,
+    },
+    "&:disabled:hover, &[aria-disabled=true]:hover": {
+      borderColor: theme.color.foreground.disabled,
+      background: "white",
     },
   },
 });

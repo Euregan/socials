@@ -5,7 +5,7 @@ type Item {
   title: String!
   url: String!
   description: String!
-  thumbnailUrl: String
+  hasThumbnail: Boolean!
   publishedAt: Date!
   seenAt: Date
 
@@ -21,7 +21,7 @@ type Source {
   id: Int!
   name: String!
   description: String
-  thumbnailUrl: String
+  hasThumbnail: Boolean!
   type: SourceType!
   remoteId: String!
 

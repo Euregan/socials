@@ -10,10 +10,10 @@ export const Feed = () => {
     "id",
     "title",
     "description",
-    "thumbnailUrl",
+    "hasThumbnail",
     "url",
     "publishedAt",
-    { source: ["id", "name", "thumbnailUrl"] },
+    { source: ["id", "name", "hasThumbnail"] },
   ]);
 
   const { loading, sources } = useSources();
@@ -49,7 +49,7 @@ export const Feed = () => {
                 item={selectedItem}
                 onNext={() => {
                   const currentIndex = items?.findIndex(
-                    (item) => item.id === selectedItem.id
+                    (item) => item.id === selectedItem.id,
                   );
                   const nextItem = currentIndex
                     ? items[currentIndex + 1]
@@ -60,7 +60,7 @@ export const Feed = () => {
                 }}
                 onPrevious={() => {
                   const currentIndex = items?.findIndex(
-                    (item) => item.id === selectedItem.id
+                    (item) => item.id === selectedItem.id,
                   );
                   const previousItem = currentIndex
                     ? items[currentIndex - 1]

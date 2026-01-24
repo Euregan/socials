@@ -7,7 +7,7 @@ const { query } = api(`${import.meta.env.VITE_API_URL}/graphql`);
 type Source = {
   id: number;
   name: string;
-  thumbnailUrl: string | null;
+  hasThumbnail: boolean;
   type: SourceType;
 };
 
@@ -31,7 +31,7 @@ export const useSources = () => {
   useEffect(() => {
     if (status === "blank") {
       status = "initializing";
-      query.sources(["id", "name", "thumbnailUrl", "type"]).then((sources) => {
+      query.sources(["id", "name", "hasThumbnail", "type"]).then((sources) => {
         status = "initialized";
         setSources(sources);
       });

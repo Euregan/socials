@@ -42,6 +42,8 @@ const handler = server({
 
       return seenAt ?? undefined;
     },
+    // @ts-expect-error TODO: Improve enodia to rely on the actual type sent back by the query
+    hasThumbnail: (item) => !!item.thumbnailUrl,
   },
   Source: {
     user: (source, { userId }) => {
@@ -56,6 +58,8 @@ const handler = server({
         where: { sourceId: source.id, users: { some: { userId } } },
       });
     },
+    // @ts-expect-error TODO: Improve enodia to rely on the actual type sent back by the query
+    hasThumbnail: (item) => !!item.thumbnailUrl,
   },
   User: {
     sources: (user) =>

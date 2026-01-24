@@ -8,11 +8,12 @@ export type Item = {
   title: string;
   url: string;
   description: string | null;
-  thumbnailUrl: string | null;
+  hasThumbnail: boolean;
   publishedAt: Date;
   source: {
+    id: number;
     name: string;
-    thumbnailUrl: string | null;
+    hasThumbnail: boolean;
   };
 };
 
@@ -40,18 +41,22 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
     <div className={style.details}>
       <div className={style.content}>
         <div className={style.source}>
-          {item.source.thumbnailUrl && (
+          {item.source.hasThumbnail && (
             <img
               loading="lazy"
-              src={item.source.thumbnailUrl}
+              src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${item.source.id}`}
               className={style.sourceThumbnail}
             />
           )}
           {item.source.name} - {new Date(item.publishedAt).toLocaleDateString()}
         </div>
         <h2>{item.title}</h2>
-        {item.thumbnailUrl && (
-          <img loading="lazy" src={item.thumbnailUrl} className={style.image} />
+        {item.hasThumbnail && (
+          <img
+            loading="lazy"
+            src={`${import.meta.env.VITE_API_URL}/thumbnail/item/${item.id}`}
+            className={style.image}
+          />
         )}
         <div>{item.description}</div>
       </div>

@@ -3,12 +3,14 @@ import * as style from "./ItemCard.css";
 
 type ItemCardProps = {
   item: {
+    id: number;
     url: string;
     title: string;
-    thumbnailUrl: string | null;
+    hasThumbnail: boolean;
     publishedAt: Date;
     source: {
-      thumbnailUrl: string | null;
+      id: number;
+      hasThumbnail: boolean;
     };
   };
   onClick?: (event: MouseEvent) => void;
@@ -17,17 +19,21 @@ type ItemCardProps = {
 export const ItemCard = ({ item, onClick }: ItemCardProps) => (
   <a href={item.url} target="_blank" className={style.item} onClick={onClick}>
     <h2 className={style.title}>
-      {item.source.thumbnailUrl && (
+      {item.source.hasThumbnail && (
         <img
           loading="lazy"
-          src={item.source.thumbnailUrl}
+          src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${item.source.id}`}
           className={style.sourceThumbnail}
         />
       )}{" "}
       {item.title} - {new Date(item.publishedAt).toLocaleDateString()}
     </h2>
-    {item.thumbnailUrl && (
-      <img loading="lazy" src={item.thumbnailUrl} className={style.image} />
+    {item.hasThumbnail && (
+      <img
+        loading="lazy"
+        src={`${import.meta.env.VITE_API_URL}/thumbnail/item/${item.id}`}
+        className={style.image}
+      />
     )}
   </a>
 );

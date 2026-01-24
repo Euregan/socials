@@ -24,7 +24,7 @@ services:
       API_URL: http://localhost:3000
       WEB_URL: http://localhost:5173
       JWT_SECRET: supersecret
-      DATABASE_URL: postgresql://user:password@db:5432/socials
+      DATABASE_URL: ${DATABASE_URL:-postgresql://user:password@db:5432/socials}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}

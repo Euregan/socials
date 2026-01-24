@@ -1,10 +1,10 @@
 import express from "express";
 import validate from "express-zod-safe";
-import xml from "xml2js";
 import { z } from "zod";
 import { db } from "../database";
 import querystring from "querystring";
 import { SourceType } from "../generated/prisma";
+import xmlparser from "express-xml-bodyparser";
 
 const youtubeRouter = express.Router();
 
@@ -22,84 +22,86 @@ youtubeRouter.get(
   },
 );
 
-youtubeRouter.post("/pubsubhubbub", async (request, response) => {
-  try {
-    const payload: {
-      feed: {
-        entry: [
-          {
-            id: [string];
-            "yt:videoId": [string];
-            "yt:channelId": [string];
-            link: [string];
-            title: [string];
-            published: [string];
-            updated: [string];
-          },
-        ];
-      };
-    } = await xml.parseStringPromise(request.body);
+youtubeRouter.post(
+  "/pubsubhubbub",
+  xmlparser(),
+  validate({
+    body: z.object({
+      feed: z.object({
+        entry: z.array(
+          z.object({
+            id: z.array(z.string()).min(1).max(1),
+            "yt:videoid": z.array(z.string()).min(1).max(1),
+            "yt:channelid": z.array(z.string()).min(1).max(1),
+            link: z
+              .array(z.object({ $: z.object({ href: z.string() }) }))
+              .min(1)
+              .max(1),
+            title: z.array(z.string()).min(1).max(1),
+            published: z.array(z.string()).min(1).max(1),
+            updated: z.array(z.string()).min(1).max(1),
+          }),
+        ),
+      }),
+    }),
+  }),
+  async (request, response) => {
+    try {
+      const payload = request.body;
 
-    if (payload.feed.entry[0].link[0].includes("/shorts/")) {
-      response.status(200).end();
-      return;
-    }
-
-    const source = await db.source.findUniqueOrThrow({
-      where: { remoteId: payload.feed.entry[0]["yt:channelId"][0] },
-    });
-
-    const item = await db.item.upsert({
-      where: {
-        remoteId_sourceId: {
-          remoteId: payload.feed.entry[0]["yt:videoId"][0],
-          sourceId: source.id,
-        },
-      },
-      create: {
-        title: payload.feed.entry[0].title[0],
-        remoteId: payload.feed.entry[0]["yt:videoId"][0],
-        publishedAt: new Date(payload.feed.entry[0].published[0]),
-        url: payload.feed.entry[0].link[0],
-        thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry[0]["yt:videoId"][0]}/hqdefault.jpg`,
-        description: "",
-        source: { connect: { id: source.id } },
-      },
-      update: {
-        title: payload.feed.entry[0].title[0],
-        remoteId: payload.feed.entry[0]["yt:videoId"][0],
-        publishedAt: new Date(payload.feed.entry[0].published[0]),
-        url: payload.feed.entry[0].link[0],
-        thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry[0]["yt:videoId"][0]}/hqdefault.jpg`,
-        description: "",
-      },
-    });
-
-    response.status(200).end();
-
-    const subscriptions = await db.subscription.findMany({
-      where: { sourceId: source.id },
-    });
-
-    for (const subscription of subscriptions) {
-      await db.userItem.upsert({
-        where: {
-          userId_itemId: { userId: subscription.userId, itemId: item.id },
-        },
-        create: { userId: subscription.userId, itemId: item.id },
-        update: { userId: subscription.userId, itemId: item.id },
+      const source = await db.source.findUniqueOrThrow({
+        where: { remoteId: payload.feed.entry[0]["yt:channelid"][0] },
       });
+
+      const item = await db.item.upsert({
+        where: {
+          remoteId_sourceId: {
+            remoteId: payload.feed.entry[0]["yt:videoid"][0],
+            sourceId: source.id,
+          },
+        },
+        create: {
+          title: payload.feed.entry[0].title[0],
+          remoteId: payload.feed.entry[0]["yt:videoid"][0],
+          publishedAt: new Date(payload.feed.entry[0].published[0]),
+          url: payload.feed.entry[0].link[0].$.href,
+          thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry[0]["yt:videoid"][0]}/hqdefault.jpg`,
+          description: "",
+          source: { connect: { id: source.id } },
+        },
+        update: {
+          title: payload.feed.entry[0].title[0],
+          remoteId: payload.feed.entry[0]["yt:videoid"][0],
+          publishedAt: new Date(payload.feed.entry[0].published[0]),
+          url: payload.feed.entry[0].link[0].$.href,
+          thumbnailUrl: `https://i.ytimg.com/vi/${payload.feed.entry[0]["yt:videoid"][0]}/hqdefault.jpg`,
+          description: "",
+        },
+      });
+
+      response.status(200).end();
+
+      const subscriptions = await db.subscription.findMany({
+        where: { sourceId: source.id },
+      });
+
+      for (const subscription of subscriptions) {
+        await db.userItem.upsert({
+          where: {
+            userId_itemId: { userId: subscription.userId, itemId: item.id },
+          },
+          create: { userId: subscription.userId, itemId: item.id },
+          update: { userId: subscription.userId, itemId: item.id },
+        });
+      }
+    } catch (error) {
+      console.log(request.body);
+      console.error(error);
+      // We don't want Youtube to stop sending us updates if we error
+      return response.status(200).end();
     }
-  } catch (error) {
-    console.log(
-      JSON.stringify(request.body, null, 2),
-      JSON.stringify(request.query, null, 2),
-    );
-    console.error(error);
-    // We don't want Youtube to stop sending us updates if we error
-    return response.status(200).end();
-  }
-});
+  },
+);
 
 youtubeRouter.get("/refresh", async (request, response) => {
   const sources = await db.source.findMany({

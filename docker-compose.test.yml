@@ -1,0 +1,25 @@
+services:
+  test-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: socials
+      PGPASSWORD: password
+    ports:
+      - 5432:5432
+    volumes:
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+
+  tests:
+    image: node:24
+    working_dir: /home/node/app/api
+    volumes:
+      - ./:/home/node/app
+    environment:
+      API_URL: http://localhost:3000
+      WEB_URL: http://localhost:5173
+      DATABASE_URL: postgresql://user:password@test-db:5432/socials
+      JWT_SECRET: doesntmatter
+    command: sh -c "sleep 1 && npx prisma migrate deploy && npx vitest watch"

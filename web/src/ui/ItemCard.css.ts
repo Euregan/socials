@@ -23,8 +23,6 @@ export const sourceThumbnail = style({
 const imageBase = style({
   borderRadius: 8,
   overflow: "hidden",
-  // For some reason, there is a thin black line on Youtube thumbnails with a ratio of 16/9
-  aspectRatio: "16/8.9",
   objectFit: "cover",
   width: "100%",
   transition: "filter .2s ease-out",

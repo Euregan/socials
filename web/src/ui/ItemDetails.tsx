@@ -31,7 +31,24 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
 
   useEffect(() => {
     markingAsSeen.current = markAsSeen({ itemId: item.id, seenAt: new Date() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          onPrevious();
+          break;
+        case "ArrowRight":
+          onNext();
+          break;
+      }
+    };
+
+    document.addEventListener("keyup", handler);
+    return () => document.removeEventListener("keyup", handler);
+  }, [onNext, onPrevious]);
 
   const onMarkAsUnseen = async () => {
     await markingAsSeen.current;

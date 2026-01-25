@@ -1,4 +1,4 @@
-import { style } from "@vanilla-extract/css";
+import { style, styleVariants } from "@vanilla-extract/css";
 import { stack } from "../components/utilities.css";
 import { theme } from "../theme.css";
 
@@ -20,11 +20,22 @@ export const sourceThumbnail = style({
   marginRight: "0.5ch",
 });
 
-export const image = style({
+const imageBase = style({
   borderRadius: 8,
   overflow: "hidden",
   // For some reason, there is a thin black line on Youtube thumbnails with a ratio of 16/9
   aspectRatio: "16/8.9",
   objectFit: "cover",
   width: "100%",
+  transition: "filter .2s ease-out",
+});
+
+export const image = styleVariants({
+  default: [imageBase],
+  seen: [
+    imageBase,
+    {
+      filter: "grayscale(1) contrast(80%) brightness(80%)",
+    },
+  ],
 });

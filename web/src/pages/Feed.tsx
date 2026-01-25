@@ -17,6 +17,7 @@ export const Feed = ({ source }: FeedProps) => {
     "hasThumbnail",
     "url",
     "publishedAt",
+    "seenAt",
     { source: ["id", "name", "hasThumbnail", "type"] },
   ]);
 
@@ -29,36 +30,42 @@ export const Feed = ({ source }: FeedProps) => {
       source ? items?.filter((item) => item.source.type === source) : items,
     [items, source],
   );
+  const [displayedItems, setDisplayedItems] = useState(filteredItems);
+
+  useEffect(() => {
+    setDisplayedItems(filteredItems);
+  }, [filteredItems]);
 
   const previous = useCallback(() => {
-    if (!filteredItems || !selectedItem) return;
+    if (!displayedItems || !selectedItem) return;
 
-    const currentIndex = filteredItems?.findIndex(
+    const currentIndex = displayedItems?.findIndex(
       (item) => item.id === selectedItem.id,
     );
     const previousItem =
-      currentIndex >= 0 ? filteredItems[currentIndex - 1] : null;
+      currentIndex >= 0 ? displayedItems[currentIndex - 1] : null;
     if (previousItem) {
       setSelectedItem(previousItem);
     }
-  }, [filteredItems, selectedItem]);
+  }, [displayedItems, selectedItem]);
 
   const next = useCallback(() => {
-    if (!filteredItems) return;
+    if (!displayedItems) return;
 
     if (!selectedItem) {
-      setSelectedItem(filteredItems[0]);
+      setSelectedItem(displayedItems[0]);
       return;
     }
 
-    const currentIndex = filteredItems?.findIndex(
+    const currentIndex = displayedItems?.findIndex(
       (item) => item.id === selectedItem.id,
     );
-    const nextItem = currentIndex >= 0 ? filteredItems[currentIndex + 1] : null;
+    const nextItem =
+      currentIndex >= 0 ? displayedItems[currentIndex + 1] : null;
     if (nextItem) {
       setSelectedItem(nextItem);
     }
-  }, [filteredItems, selectedItem]);
+  }, [displayedItems, selectedItem]);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -89,7 +96,7 @@ export const Feed = ({ source }: FeedProps) => {
       {sources.length > 0 && (
         <>
           <ul className={style.items}>
-            {filteredItems?.map((item) => (
+            {displayedItems?.map((item) => (
               <li key={item.id}>
                 <ItemCard
                   item={item}
@@ -104,11 +111,31 @@ export const Feed = ({ source }: FeedProps) => {
           </ul>
 
           <div className={style.details}>
-            {selectedItem && filteredItems && (
+            {selectedItem && (
               <ItemDetails
                 item={selectedItem}
                 onPrevious={previous}
                 onNext={next}
+                onSeen={() => {
+                  setDisplayedItems((items) =>
+                    items?.map((item) =>
+                      item.id === selectedItem.id
+                        ? { ...item, seenAt: new Date() }
+                        : item,
+                    ),
+                  );
+                  setSelectedItem({ ...selectedItem, seenAt: new Date() });
+                }}
+                onUnseen={() => {
+                  setDisplayedItems((items) =>
+                    items?.map((item) =>
+                      item.id === selectedItem.id
+                        ? { ...item, seenAt: null }
+                        : item,
+                    ),
+                  );
+                  setSelectedItem({ ...selectedItem, seenAt: null });
+                }}
               />
             )}
           </div>

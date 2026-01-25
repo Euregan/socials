@@ -11,6 +11,7 @@ export type Item = {
   description: string | null;
   hasThumbnail: boolean;
   publishedAt: Date;
+  seenAt: Date | null;
   source: {
     id: number;
     name: string;
@@ -22,15 +23,23 @@ type ItemDetailsProps = {
   item: Item;
   onPrevious: () => void;
   onNext: () => void;
+  onSeen: () => void;
+  onUnseen: () => void;
 };
 
-export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
+export const ItemDetails = ({
+  item,
+  onPrevious,
+  onNext,
+  onSeen,
+  onUnseen,
+}: ItemDetailsProps) => {
   const [markAsSeen] = useMarkAsSeenMutation(["seenAt"]);
   const [markAsUnseen] = useMarkAsUnseenMutation(["id"]);
   const markingAsSeen = useRef<null | Promise<unknown>>(null);
 
   useEffect(() => {
-    markingAsSeen.current = markAsSeen({ itemId: item.id, seenAt: new Date() });
+    onMarkAsSeen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
 
@@ -50,9 +59,19 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
     return () => document.removeEventListener("keyup", handler);
   }, [onNext, onPrevious]);
 
+  const onMarkAsSeen = async () => {
+    markingAsSeen.current = markAsSeen({
+      itemId: item.id,
+      seenAt: new Date(),
+    });
+    await markingAsSeen.current;
+    onSeen();
+  };
+
   const onMarkAsUnseen = async () => {
     await markingAsSeen.current;
     await markAsUnseen({ itemId: item.id });
+    onUnseen();
   };
 
   return (
@@ -72,7 +91,9 @@ export const ItemDetails = ({ item, onPrevious, onNext }: ItemDetailsProps) => {
           </div>
           <div className={style.actions}>
             <Button onClick={onPrevious}>Previous</Button>
-            <Button onClick={onMarkAsUnseen}>Mark as unseen</Button>
+            <Button onClick={item.seenAt ? onMarkAsUnseen : onMarkAsSeen}>
+              Mark as {item.seenAt ? "unseen" : "seen"}
+            </Button>
             <Button onClick={onNext}>Next</Button>
           </div>
         </div>

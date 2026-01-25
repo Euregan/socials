@@ -8,6 +8,7 @@ type ItemCardProps = {
     title: string;
     hasThumbnail: boolean;
     publishedAt: Date;
+    seenAt: Date | null;
     source: {
       id: number;
       hasThumbnail: boolean;
@@ -32,7 +33,7 @@ export const ItemCard = ({ item, onClick }: ItemCardProps) => (
       <img
         loading="lazy"
         src={`${import.meta.env.VITE_API_URL}/thumbnail/item/${item.id}`}
-        className={style.image}
+        className={item.seenAt ? style.image.seen : style.image.default}
       />
     )}
   </a>

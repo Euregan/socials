@@ -74,6 +74,13 @@ export const syncRssFeeds = async () => {
       where: { sourceId: source.id },
     });
 
+    if (!source.thumbnailUrl && feed.thumbnail) {
+      await db.source.update({
+        where: { id: source.id },
+        data: { thumbnailUrl: feed.thumbnail },
+      });
+    }
+
     for (const rssItem of feed.items) {
       const remoteId =
         rssItem.guid ?? rssItem.link ?? rssItem.isoDate ?? rssItem.pubDate;
@@ -87,6 +94,13 @@ export const syncRssFeeds = async () => {
           },
         },
       });
+
+      if (item && !item.thumbnailUrl && rssItem.thumbnail) {
+        await db.item.update({
+          where: { id: item.id },
+          data: { thumbnailUrl: rssItem.thumbnail },
+        });
+      }
 
       if (!item) {
         item = await db.item.create({

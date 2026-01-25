@@ -5,6 +5,12 @@ import { Signup } from "./pages/Signup";
 import { useUser } from "./hooks/useUser";
 import { Admin } from "./pages/Admin";
 import * as style from "./App.css";
+import type { SourceType } from "./api";
+
+const sourceRouteParamToSourceType = {
+  rss: "RSS",
+  youtube: "Youtube",
+} satisfies Record<string, SourceType>;
 
 const App = () => {
   const { user } = useUser();
@@ -29,6 +35,21 @@ const App = () => {
 
             <Route path="/">
               <Feed />
+            </Route>
+            <Route path="/source/:source">
+              {(params) =>
+                params.source in sourceRouteParamToSourceType ? (
+                  <Feed
+                    source={
+                      sourceRouteParamToSourceType[
+                        params.source as keyof typeof sourceRouteParamToSourceType
+                      ]
+                    }
+                  />
+                ) : (
+                  <>404: No such page!</>
+                )
+              }
             </Route>
 
             {user.admin && (

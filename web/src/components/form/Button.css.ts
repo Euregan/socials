@@ -41,7 +41,7 @@ export const button = style({
       width: 24,
       padding: 0,
     },
-    "&:has(svg:only-child)": {
+    "&:has(svg:only-child), &:has(img:only-child)": {
       padding: 0,
       fontSize: 24,
       aspectRatio: "1/1",

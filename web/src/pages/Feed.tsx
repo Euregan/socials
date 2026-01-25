@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { useUnseenQuery } from "../api";
+import { useUnseenQuery, type SourceType } from "../api";
 import { ItemCard } from "../ui/ItemCard";
 import { ItemDetails, type Item } from "../ui/ItemDetails";
-import * as style from "./Feed.css";
 import { useSources } from "../hooks/useSources";
+import * as style from "./Feed.css";
 
-export const Feed = () => {
+type FeedProps = {
+  source?: SourceType;
+};
+
+export const Feed = ({ source }: FeedProps) => {
   const [, , items] = useUnseenQuery([
     "id",
     "title",
@@ -13,12 +17,16 @@ export const Feed = () => {
     "hasThumbnail",
     "url",
     "publishedAt",
-    { source: ["id", "name", "hasThumbnail"] },
+    { source: ["id", "name", "hasThumbnail", "type"] },
   ]);
 
   const { loading, sources } = useSources();
 
   const [selectedItem, setSelectedItem] = useState<null | Item>(null);
+
+  const filteredItems = source
+    ? items?.filter((item) => item.source.type === source)
+    : items;
 
   return (
     <div className={sources && sources.length === 0 ? style.empty : style.feed}>
@@ -29,7 +37,7 @@ export const Feed = () => {
       {sources.length > 0 && (
         <>
           <ul className={style.items}>
-            {items?.map((item) => (
+            {filteredItems?.map((item) => (
               <li key={item.id}>
                 <ItemCard
                   item={item}
@@ -44,25 +52,25 @@ export const Feed = () => {
           </ul>
 
           <div className={style.details}>
-            {selectedItem && items && (
+            {selectedItem && filteredItems && (
               <ItemDetails
                 item={selectedItem}
                 onNext={() => {
-                  const currentIndex = items?.findIndex(
+                  const currentIndex = filteredItems?.findIndex(
                     (item) => item.id === selectedItem.id,
                   );
                   const nextItem =
-                    currentIndex >= 0 ? items[currentIndex + 1] : null;
+                    currentIndex >= 0 ? filteredItems[currentIndex + 1] : null;
                   if (nextItem) {
                     setSelectedItem(nextItem);
                   }
                 }}
                 onPrevious={() => {
-                  const currentIndex = items?.findIndex(
+                  const currentIndex = filteredItems?.findIndex(
                     (item) => item.id === selectedItem.id,
                   );
                   const previousItem =
-                    currentIndex >= 0 ? items[currentIndex - 1] : null;
+                    currentIndex >= 0 ? filteredItems[currentIndex - 1] : null;
                   if (previousItem) {
                     setSelectedItem(previousItem);
                   }

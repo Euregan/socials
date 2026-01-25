@@ -12,11 +12,13 @@ const getThumbnail = async (url: string) => {
     fetch(`${origin}/favicon.ico`),
   ]);
 
-  return png.status === 200
+  return png.status === 200 &&
+    png.headers.get("content-type")?.startsWith("image")
     ? `${origin}/favicon.png`
-    : jpg.status === 200
+    : jpg.status === 200 && jpg.headers.get("content-type")?.startsWith("image")
       ? `${origin}/favicon.jpg`
-      : ico.status === 200
+      : ico.status === 200 &&
+          ico.headers.get("content-type")?.startsWith("image")
         ? `${origin}/favicon.ico`
         : null;
 };
@@ -29,12 +31,15 @@ export const fetchFeed = async (url: string) => {
     thumbnail: await getThumbnail(url),
     items: feed.items.map((item) => {
       const markdown = item.content
-        ? NodeHtmlMarkdown.translate(item.content)
+        ? NodeHtmlMarkdown.translate(
+            item.content.replace(/^\s*\<!\[CDATA\[(.*)\]\]\>\s*$/s, "$1"),
+          )
         : "";
 
       const thumbnail =
         markdown.match(/^!\[\]\((.+?)\)/)?.[1] ??
         markdown.match(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/)?.[1] ??
+        markdown.match(/^\[!\[\]\((.+?)\).*?\]\(.+?\)/)?.[1] ??
         null;
 
       return {
@@ -42,6 +47,7 @@ export const fetchFeed = async (url: string) => {
         content: markdown
           .replace(/^!\[\]\((.+?)\)/, "")
           .replace(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/, "")
+          .replace(/^\[!\[\]\((.+?)\).*?\]\(.+?\)/, "")
           .replace(/^\s+/, ""),
         thumbnail,
       };

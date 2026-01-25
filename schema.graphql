@@ -51,4 +51,5 @@ type Mutation {
   markAsSeen(itemId: Int!, seenAt: Date!): Item!
   markAsUnseen(itemId: Int!): Item!
   addRssFeed(url: String!): Source!
+  uploadOpml(content: String!): [Source]!
 }

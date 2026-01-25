@@ -5,6 +5,9 @@ import { db } from "../database";
 import { fetchFeed } from "../externalApi/rss";
 import { SourceType } from "../generated/prisma";
 import argon2 from "argon2";
+import { XMLParser } from "fast-xml-parser";
+import z from "zod";
+import { importFeed } from "../sync/syncRssFeeds";
 
 const handler = server({
   instantiateContext: (request) => {
@@ -162,72 +165,56 @@ const handler = server({
     addRssFeed: async ({ url }, { userId }) => {
       if (!userId) throw new Error("No JWT");
 
-      const feed = await fetchFeed(url);
+      return importFeed(url, userId);
+    },
+    uploadOpml: async ({ content }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
 
-      const source = await db.source.upsert({
-        where: { remoteId: url },
-        create: {
-          remoteId: feed.feedUrl ?? url,
-          name: feed.title ?? url,
-          description: feed.description,
-          thumbnailUrl: feed.thumbnail,
-          type: SourceType.RSS,
-        },
-        update: {
-          remoteId: feed.feedUrl ?? url,
-          name: feed.title ?? url,
-          description: feed.description,
-          thumbnailUrl: feed.thumbnail,
-          type: SourceType.RSS,
-        },
-      });
+      const parser = new XMLParser({ ignoreAttributes: false });
+      const raw = parser.parse(content);
 
-      await db.subscription.create({ data: { sourceId: source.id, userId } });
+      const validatedOpml = z
+        .object({
+          opml: z.object({
+            body: z.object({
+              outline: z.array(
+                z.object({
+                  outline: z
+                    .union([
+                      z.array(z.object({ "@_xmlUrl": z.string() })),
+                      z.object({ "@_xmlUrl": z.string() }),
+                    ])
+                    .optional(),
+                }),
+              ),
+            }),
+          }),
+        })
+        .safeParse(raw);
 
-      const subscriptions = await db.subscription.findMany({
-        where: { sourceId: source.id },
-      });
-
-      for (const rssItem of feed.items) {
-        const item = await db.item.upsert({
-          where: {
-            remoteId_sourceId: {
-              sourceId: source.id,
-              remoteId: rssItem.guid!,
-            },
-          },
-          create: {
-            title: rssItem.title!,
-            remoteId: rssItem.guid!,
-            description: rssItem.content,
-            thumbnailUrl: rssItem.thumbnail,
-            publishedAt: new Date(rssItem.pubDate!),
-            url: rssItem.link!,
-            sourceId: source.id,
-          },
-          update: {
-            title: rssItem.title!,
-            remoteId: rssItem.guid!,
-            description: rssItem.content,
-            thumbnailUrl: rssItem.thumbnail,
-            publishedAt: new Date(rssItem.pubDate!),
-            url: rssItem.link!,
-            sourceId: source.id,
-          },
-        });
-
-        for (const subscription of subscriptions) {
-          await db.userItem.upsert({
-            where: {
-              userId_itemId: { userId: subscription.userId, itemId: item.id },
-            },
-            create: { userId: subscription.userId, itemId: item.id },
-            update: { userId: subscription.userId, itemId: item.id },
-          });
-        }
+      if (!validatedOpml.success) {
+        console.error(validatedOpml.error.message);
+        return [];
       }
 
-      return source;
+      const feedUrls = validatedOpml.data.opml.body.outline.flatMap(
+        ({ outline }) =>
+          outline
+            ? Array.isArray(outline)
+              ? outline.map((outline) => outline["@_xmlUrl"])
+              : [outline["@_xmlUrl"]]
+            : [],
+      );
+
+      const sources = [];
+      for (const url of feedUrls) {
+        try {
+          sources.push(await importFeed(url, userId));
+        } catch (error) {
+          console.error(url, error);
+        }
+      }
+      return sources;
     },
   },
 });

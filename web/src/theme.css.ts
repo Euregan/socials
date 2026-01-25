@@ -13,9 +13,12 @@ export const [themeClass, theme] = createTheme({
       active: "#0D54D1",
       hover: "#6E98E3",
       disabled: "#667185",
+      danger: "#C2352B",
     },
     background: {
       hover: "#E7EEFA",
+      danger: "#E7AEAA",
+      accent: "#B1C9F1",
     },
   },
   font: {

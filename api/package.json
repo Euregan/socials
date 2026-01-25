@@ -28,6 +28,7 @@
     "express": "^5.1.0",
     "express-xml-bodyparser": "^0.4.1",
     "express-zod-safe": "^1.5.3",
+    "fast-xml-parser": "^5.3.3",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
     "node-html-markdown": "^2.0.0",

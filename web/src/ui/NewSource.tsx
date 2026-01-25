@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { useAddRssFeedMutation } from "../api";
+import { useAddRssFeedMutation, useUploadOpmlMutation } from "../api";
 import { TextField } from "../components/form/TextField";
 import { Button } from "../components/form/Button";
 import { Youtube } from "lucide-react";
 import { useUser } from "../hooks/useUser";
-import * as style from "./NewSource.css";
 import { useSources } from "../hooks/useSources";
+import { FileField } from "../components/form/FileField";
+import * as style from "./NewSource.css";
 
 export const NewSource = () => {
   const { user } = useUser();
 
   const [addRssFeed] = useAddRssFeedMutation(["name"]);
+  const [uploadOpml] = useUploadOpmlMutation(["id"]);
 
   const [newRssFeedUrl, setNewRssFeedUrl] = useState("");
 
@@ -72,6 +74,17 @@ export const NewSource = () => {
             <Youtube />
           </a>
         </div>
+      </section>
+
+      <section className={style.section}>
+        <h2>Import feeds</h2>
+        <FileField
+          label="OMPL file"
+          maxSize={1000}
+          onChange={async (file) =>
+            file ? uploadOpml({ content: await file.text() }) : null
+          }
+        />
       </section>
     </>
   ) : (

@@ -17,6 +17,7 @@ export const stack = recipe({
     },
     verticalAlignment: {
       split: { justifyContent: "space-between" },
+      center: { justifyContent: "center" },
     },
     horizontalAlignment: {
       center: { alignItems: "center" },

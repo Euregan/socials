@@ -5,3 +5,6 @@ onlyBuiltDependencies:
   - "@swc/core"
   - esbuild
   - prisma
+ignoredBuiltDependencies:
+  - fsevents
+  - sharp

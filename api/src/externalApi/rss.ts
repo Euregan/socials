@@ -30,9 +30,10 @@ export const fetchFeed = async (url: string) => {
     ...feed,
     thumbnail: await getThumbnail(url),
     items: feed.items.map((item) => {
-      const markdown = item.content
+      const content = item["content:encoded"] ?? item.content;
+      const markdown = content
         ? NodeHtmlMarkdown.translate(
-            item.content.replace(/^\s*\<!\[CDATA\[(.*)\]\]\>\s*$/s, "$1"),
+            content.replace(/^\s*\<!\[CDATA\[(.*)\]\]\>\s*$/s, "$1"),
           )
         : "";
 

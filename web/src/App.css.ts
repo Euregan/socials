@@ -22,6 +22,7 @@ export const content = style([
     padding: theme.spacing.large,
     maxHeight: "100vh",
     boxSizing: "border-box",
+    overflow: "hidden",
   },
 ]);
 

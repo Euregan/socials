@@ -40,10 +40,8 @@ export const sources = styleVariants({
   inactive: [sourcesBase, {}],
   active: [
     sourcesBase,
+    stack({ gap: "small" }),
     {
-      display: "flex",
-      flexDirection: "column",
-      gap: theme.spacing.small,
       marginTop: theme.spacing.small,
       alignItems: "center",
       overflow: "hidden",
@@ -89,3 +87,10 @@ export const source = style([
     },
   },
 ]);
+
+export const settings = style([
+  stack({ gap: "medium", verticalAlignment: "bottom" }),
+  { flexGrow: 1 },
+]);
+
+export const link = button;

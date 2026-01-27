@@ -7,6 +7,7 @@ import {
 import { theme } from "../../theme.css";
 
 export const height = createVar();
+export const iconSize = createVar();
 
 export const button = style({
   background: "white",
@@ -36,14 +37,9 @@ export const button = style({
   },
 
   selectors: {
-    "table &": {
-      height: 24,
-      width: 24,
-      padding: 0,
-    },
     "&:has(svg:only-child), &:has(img:only-child)": {
       padding: 0,
-      fontSize: 24,
+      fontSize: fallbackVar(iconSize, "20px"),
       aspectRatio: "1/1",
     },
     "&:disabled, &[aria-disabled=true]": {

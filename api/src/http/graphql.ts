@@ -216,6 +216,15 @@ const handler = server({
       }
       return sources;
     },
+    deleteSource: async ({ sourceId }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      await db.subscription.delete({
+        where: { userId_sourceId: { userId, sourceId } },
+      });
+
+      return db.source.findUniqueOrThrow({ where: { id: sourceId } });
+    },
   },
 });
 

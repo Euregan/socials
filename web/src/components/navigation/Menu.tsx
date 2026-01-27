@@ -1,4 +1,4 @@
-import { Plus, Rss, Youtube } from "lucide-react";
+import { Plus, Rss, Settings, Volleyball, Youtube } from "lucide-react";
 import { Button } from "../form/Button";
 import { useMemo, useState, type ReactNode } from "react";
 import { Modal } from "../container/Modal";
@@ -65,12 +65,22 @@ export const Menu = () => {
   return (
     <>
       <nav className={style.menu}>
+        <Link href="/" className={style.link}>
+          <Volleyball />
+        </Link>
+
         <Button onClick={() => setNewFeedModalOpen(true)}>
           <Plus />
         </Button>
 
         <Source type="RSS" />
         <Source type="Youtube" />
+
+        <div className={style.settings}>
+          <Link href="/settings" className={style.link}>
+            <Settings />
+          </Link>
+        </div>
       </nav>
 
       <Modal open={newFeedModalOpen} onClose={() => setNewFeedModalOpen(false)}>

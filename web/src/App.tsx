@@ -4,8 +4,9 @@ import { Feed } from "./pages/Feed";
 import { Signup } from "./pages/Signup";
 import { useUser } from "./hooks/useUser";
 import { Admin } from "./pages/Admin";
-import * as style from "./App.css";
 import type { SourceType } from "./api";
+import * as style from "./App.css";
+import { Settings } from "./pages/Settings";
 
 const sourceRouteParamToSourceType = {
   rss: "RSS",
@@ -50,6 +51,10 @@ const App = () => {
                   <>404: No such page!</>
                 )
               }
+            </Route>
+
+            <Route path="/settings">
+              <Settings />
             </Route>
 
             {user.admin && (

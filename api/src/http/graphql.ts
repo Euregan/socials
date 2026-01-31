@@ -62,7 +62,34 @@ const handler = server({
       });
     },
     // @ts-expect-error TODO: Improve enodia to rely on the actual type sent back by the query
-    hasThumbnail: (item) => !!item.thumbnailUrl,
+    hasThumbnail: (source) => !!source.thumbnailUrl,
+    groups: (source, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.findMany({
+        where: {
+          subscriptions: {
+            some: {
+              userId,
+              sourceId: source.id,
+            },
+          },
+        },
+      });
+    },
+  },
+  Group: {
+    sources: (group, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.source.findMany({
+        where: {
+          subscriptions: {
+            some: { userId, groups: { some: { id: group.id } } },
+          },
+        },
+      });
+    },
   },
   User: {
     sources: (user) =>
@@ -224,6 +251,40 @@ const handler = server({
       });
 
       return db.source.findUniqueOrThrow({ where: { id: sourceId } });
+    },
+    createGroup: ({ sourceIds, excludeFromGlobalView, name }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.create({
+        data: {
+          excludeFromGlobalView,
+          name,
+          subscriptions: {
+            connect: sourceIds.map((sourceId) => ({
+              userId_sourceId: { userId, sourceId },
+            })),
+          },
+        },
+      });
+    },
+    updateGroup: (
+      { groupId, sourceIds, excludeFromGlobalView, name },
+      { userId },
+    ) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.update({
+        where: { id: groupId },
+        data: {
+          excludeFromGlobalView,
+          name,
+          subscriptions: {
+            set: sourceIds.map((sourceId) => ({
+              userId_sourceId: { userId, sourceId },
+            })),
+          },
+        },
+      });
     },
   },
 });

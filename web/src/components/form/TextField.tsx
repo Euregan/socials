@@ -1,7 +1,7 @@
 import * as style from "./TextField.css";
 
 type TextFieldProps = {
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "search";
   label: string;
   value: string;
   onChange: (value: string) => void;

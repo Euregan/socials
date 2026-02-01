@@ -2,10 +2,26 @@ import { style, styleVariants } from "@vanilla-extract/css";
 import { stack } from "../components/utilities.css";
 import { theme } from "../theme.css";
 
-export const item = style([
+const itemBase = style([
   stack({ gap: "small" }),
-  { textDecoration: "none", color: theme.color.foreground.default },
+  {
+    textDecoration: "none",
+    color: theme.color.foreground.default,
+    transition: "background .1s ease-out, color .2s ease-out",
+    padding: theme.spacing.small,
+    borderRadius: `calc(4px + ${theme.spacing.small})`,
+  },
 ]);
+export const item = styleVariants({
+  default: [itemBase],
+  highlighted: [
+    itemBase,
+    {
+      background: theme.color.foreground.active,
+      color: "white",
+    },
+  ],
+});
 
 export const title = style({ fontSize: 16, fontWeight: 500 });
 

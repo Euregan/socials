@@ -19,13 +19,14 @@ export const feed = style({
 });
 
 export const items = style([
-  stack({ gap: "large" }),
+  stack(),
   {
     height: "100%",
     overflow: "auto",
     // Small hack to keep the scrollbar away from the content
     paddingRight: `calc(${theme.spacing.large} / 2)`,
     marginRight: `calc(${theme.spacing.large} / -2)`,
+    gap: `calc(${theme.spacing.large} - 2 * ${theme.spacing.small})`,
   },
 ]);
 

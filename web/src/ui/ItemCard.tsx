@@ -15,15 +15,27 @@ type ItemCardProps = {
     };
   };
   onClick?: (event: MouseEvent) => void;
+  highlighted?: boolean;
 };
 
-export const ItemCard = ({ item, onClick }: ItemCardProps) => (
-  <a href={item.url} target="_blank" className={style.item} onClick={onClick}>
+export const ItemCard = ({
+  item,
+  onClick,
+  highlighted = false,
+}: ItemCardProps) => (
+  <a
+    href={item.url}
+    target="_blank"
+    className={highlighted ? style.item.highlighted : style.item.default}
+    onClick={onClick}
+  >
     <h2 className={style.title}>
       {item.source.hasThumbnail && (
         <img
           loading="lazy"
-          src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${item.source.id}`}
+          src={`${import.meta.env.VITE_API_URL}/thumbnail/source/${
+            item.source.id
+          }`}
           className={style.sourceThumbnail}
         />
       )}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useUnseenQuery, type SourceType } from "../api";
 import { ItemCard } from "../ui/ItemCard";
 import { ItemDetails, type Item } from "../ui/ItemDetails";
@@ -34,6 +34,8 @@ export const Feed = ({ source, groupId }: FeedProps) => {
 
   const [selectedItem, setSelectedItem] = useState<null | Item>(null);
 
+  const itemCardsRefs = useRef<Array<HTMLLIElement>>([]);
+
   const filteredItems = useMemo(
     () =>
       items?.filter(
@@ -59,8 +61,17 @@ export const Feed = ({ source, groupId }: FeedProps) => {
     );
     const previousItem =
       currentIndex >= 0 ? displayedItems[currentIndex - 1] : null;
+
     if (previousItem) {
       setSelectedItem(previousItem);
+
+      const previousPreviousItem = itemCardsRefs.current[currentIndex - 2];
+      if (previousPreviousItem) {
+        previousPreviousItem.scrollIntoView({
+          block: "start",
+          behavior: "smooth",
+        });
+      }
     }
   }, [displayedItems, selectedItem]);
 
@@ -77,8 +88,14 @@ export const Feed = ({ source, groupId }: FeedProps) => {
     );
     const nextItem =
       currentIndex >= 0 ? displayedItems[currentIndex + 1] : null;
+
     if (nextItem) {
       setSelectedItem(nextItem);
+
+      const nextNextItem = itemCardsRefs.current[currentIndex + 2];
+      if (nextNextItem) {
+        nextNextItem.scrollIntoView({ block: "end", behavior: "smooth" });
+      }
     }
   }, [displayedItems, selectedItem]);
 
@@ -110,10 +127,23 @@ export const Feed = ({ source, groupId }: FeedProps) => {
 
       {sources.length > 0 && (
         <>
-          <ul className={style.items}>
-            {displayedItems?.map((item) => (
-              <li key={item.id}>
+          <ul
+            className={style.items}
+            onKeyDown={(event) => {
+              if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+                event.preventDefault();
+              }
+            }}
+          >
+            {displayedItems?.map((item, index) => (
+              <li
+                key={item.id}
+                ref={(card) => {
+                  if (card) itemCardsRefs.current[index] = card;
+                }}
+              >
                 <ItemCard
+                  highlighted={selectedItem?.id === item.id}
                   item={item}
                   onClick={(event) => {
                     event.stopPropagation();

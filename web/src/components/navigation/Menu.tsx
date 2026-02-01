@@ -8,6 +8,9 @@ import { Link, useLocation } from "wouter";
 import { SourceThumbnail } from "../data/SourceThumbnail";
 import type { SourceType } from "../../api";
 import * as style from "./Menu.css";
+import { useGroups } from "../../hooks/useGroups";
+import { DynamicIcon } from "lucide-react/dynamic";
+import type { Icon } from "../form/IconPicker";
 
 const sourceIcons = {
   RSS: <Rss />,
@@ -20,6 +23,7 @@ type SourceProps = {
 
 const Source = ({ type }: SourceProps) => {
   const { sources } = useSources();
+
   const [route] = useLocation();
   const sourceRoute = `/source/${type.toLocaleLowerCase()}`;
   const isSourceRoute = route.startsWith(sourceRoute);
@@ -30,11 +34,11 @@ const Source = ({ type }: SourceProps) => {
         .filter((source) => source.type === type)
         .sort((a, b) => a.name.localeCompare(b.name)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sources],
+    [sources]
   );
   const filteredItems = useMemo(
     () => allItems.slice(0, isSourceRoute ? undefined : 3),
-    [allItems, isSourceRoute],
+    [allItems, isSourceRoute]
   );
 
   return (
@@ -62,6 +66,8 @@ const Source = ({ type }: SourceProps) => {
 export const Menu = () => {
   const [newFeedModalOpen, setNewFeedModalOpen] = useState(false);
 
+  const { groups } = useGroups();
+
   return (
     <>
       <nav className={style.menu}>
@@ -72,6 +78,12 @@ export const Menu = () => {
         <Button onClick={() => setNewFeedModalOpen(true)}>
           <Plus />
         </Button>
+
+        {groups.map((group) => (
+          <Link className={style.sourceType} href={`/group/${group.id}`}>
+            <DynamicIcon name={group.icon as Icon} />
+          </Link>
+        ))}
 
         <Source type="RSS" />
         <Source type="Youtube" />

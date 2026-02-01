@@ -1,4 +1,4 @@
-import { style } from "@vanilla-extract/css";
+import { createVar, fallbackVar, style } from "@vanilla-extract/css";
 import { stack } from "../utilities.css";
 import { theme } from "../../theme.css";
 
@@ -13,13 +13,15 @@ export const label = style([
   },
 ]);
 
+export const height = createVar();
+
 export const input = style({
   color: theme.color.foreground.default,
   fontWeight: 400,
   boxSizing: "border-box",
   fontSize: 16,
   padding: "0 12px",
-  height: 36,
+  height: fallbackVar(height, "36px"),
   background: "white",
   border: theme.border.default,
   borderRadius: 8,

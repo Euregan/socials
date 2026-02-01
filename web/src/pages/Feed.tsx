@@ -7,9 +7,10 @@ import * as style from "./Feed.css";
 
 type FeedProps = {
   source?: SourceType;
+  groupId?: Number;
 };
 
-export const Feed = ({ source }: FeedProps) => {
+export const Feed = ({ source, groupId }: FeedProps) => {
   const [, , items] = useUnseenQuery([
     "id",
     "title",
@@ -18,7 +19,15 @@ export const Feed = ({ source }: FeedProps) => {
     "url",
     "publishedAt",
     "seenAt",
-    { source: ["id", "name", "hasThumbnail", "type"] },
+    {
+      source: [
+        "id",
+        "name",
+        "hasThumbnail",
+        "type",
+        { groups: ["id", "name", "excludeFromGlobalView"] },
+      ],
+    },
   ]);
 
   const { loading, sources } = useSources();
@@ -27,8 +36,14 @@ export const Feed = ({ source }: FeedProps) => {
 
   const filteredItems = useMemo(
     () =>
-      source ? items?.filter((item) => item.source.type === source) : items,
-    [items, source],
+      items?.filter(
+        (item) =>
+          (!source || item.source.type === source) &&
+          (groupId ||
+            !item.source.groups.some((group) => group.excludeFromGlobalView)) &&
+          (!groupId || item.source.groups.some((group) => group.id === groupId))
+      ),
+    [items, source, groupId]
   );
   const [displayedItems, setDisplayedItems] = useState(filteredItems);
 
@@ -40,7 +55,7 @@ export const Feed = ({ source }: FeedProps) => {
     if (!displayedItems || !selectedItem) return;
 
     const currentIndex = displayedItems?.findIndex(
-      (item) => item.id === selectedItem.id,
+      (item) => item.id === selectedItem.id
     );
     const previousItem =
       currentIndex >= 0 ? displayedItems[currentIndex - 1] : null;
@@ -58,7 +73,7 @@ export const Feed = ({ source }: FeedProps) => {
     }
 
     const currentIndex = displayedItems?.findIndex(
-      (item) => item.id === selectedItem.id,
+      (item) => item.id === selectedItem.id
     );
     const nextItem =
       currentIndex >= 0 ? displayedItems[currentIndex + 1] : null;
@@ -121,8 +136,8 @@ export const Feed = ({ source }: FeedProps) => {
                     items?.map((item) =>
                       item.id === selectedItem.id
                         ? { ...item, seenAt: new Date() }
-                        : item,
-                    ),
+                        : item
+                    )
                   );
                   setSelectedItem({ ...selectedItem, seenAt: new Date() });
                 }}
@@ -131,8 +146,8 @@ export const Feed = ({ source }: FeedProps) => {
                     items?.map((item) =>
                       item.id === selectedItem.id
                         ? { ...item, seenAt: null }
-                        : item,
-                    ),
+                        : item
+                    )
                   );
                   setSelectedItem({ ...selectedItem, seenAt: null });
                 }}

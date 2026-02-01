@@ -27,6 +27,16 @@ type Source {
 
   user: User!
   items: [Item]!
+  groups: [Group]!
+}
+
+type Group {
+  id: Int!
+  name: String!
+  icon: String!
+  excludeFromGlobalView: Boolean!
+
+  sources: [Source]!
 }
 
 type User {
@@ -41,6 +51,7 @@ type User {
 type Query {
   unseen: [Item]!
   sources: [Source]!
+  groups: [Group]!
   # Admin zone
   youtubeChannels: [Source]!
 }
@@ -48,9 +59,26 @@ type Query {
 type Mutation {
   signup(email: String!, password: String!): User!
   login(email: String!, password: String!): User!
+
   markAsSeen(itemId: Int!, seenAt: Date!): Item!
   markAsUnseen(itemId: Int!): Item!
+
   addRssFeed(url: String!): Source!
   uploadOpml(content: String!): [Source]!
   deleteSource(sourceId: Int!): Source!
+
+  createGroup(
+    sourceIds: [Int]!
+    name: String!
+    icon: String!
+    excludeFromGlobalView: Boolean!
+  ): Group!
+  updateGroup(
+    groupId: Int!
+    sourceIds: [Int]!
+    name: String!
+    icon: String!
+    excludeFromGlobalView: Boolean!
+  ): Group!
+  deleteGroup(groupId: Int!): Group!
 }

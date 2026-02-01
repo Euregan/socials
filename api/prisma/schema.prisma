@@ -61,7 +61,18 @@ model Subscription {
   user     User   @relation(fields: [userId], references: [id])
   source   Source @relation(fields: [sourceId], references: [id])
 
+  groups Group[]
+
   @@unique([userId, sourceId])
+}
+
+model Group {
+  id                    Int     @id @default(autoincrement())
+  name                  String
+  icon                  String
+  excludeFromGlobalView Boolean
+
+  subscriptions Subscription[]
 }
 
 model User {

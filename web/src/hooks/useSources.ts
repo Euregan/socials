@@ -4,7 +4,7 @@ import api, { useDeleteSourceMutation, type SourceType } from "../api";
 
 const { query } = api(`${import.meta.env.VITE_API_URL}/graphql`);
 
-type Source = {
+export type Source = {
   id: number;
   name: string;
   hasThumbnail: boolean;
@@ -51,7 +51,7 @@ export const useSources = () => {
       setSources(sources.filter((source) => source.id !== sourceId));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sources],
+    [sources]
   );
 
   return {

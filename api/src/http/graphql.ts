@@ -2,7 +2,6 @@ import express from "express";
 import { DetailedResponse, server } from "../graphql";
 import jsonwebtoken from "jsonwebtoken";
 import { db } from "../database";
-import { fetchFeed } from "../externalApi/rss";
 import { SourceType } from "../generated/prisma";
 import argon2 from "argon2";
 import { XMLParser } from "fast-xml-parser";
@@ -62,7 +61,34 @@ const handler = server({
       });
     },
     // @ts-expect-error TODO: Improve enodia to rely on the actual type sent back by the query
-    hasThumbnail: (item) => !!item.thumbnailUrl,
+    hasThumbnail: (source) => !!source.thumbnailUrl,
+    groups: (source, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.findMany({
+        where: {
+          subscriptions: {
+            some: {
+              userId,
+              sourceId: source.id,
+            },
+          },
+        },
+      });
+    },
+  },
+  Group: {
+    sources: (group, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.source.findMany({
+        where: {
+          subscriptions: {
+            some: { userId, groups: { some: { id: group.id } } },
+          },
+        },
+      });
+    },
   },
   User: {
     sources: (user) =>
@@ -84,6 +110,13 @@ const handler = server({
       if (!userId) throw new Error("No JWT");
 
       return db.source.findMany({
+        where: { subscriptions: { some: { userId } } },
+      });
+    },
+    groups: ({ userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.findMany({
         where: { subscriptions: { some: { userId } } },
       });
     },
@@ -111,7 +144,7 @@ const handler = server({
               id: user.id,
               email: user.email,
             },
-            process.env.JWT_SECRET!,
+            process.env.JWT_SECRET!
           ),
         },
       });
@@ -137,7 +170,7 @@ const handler = server({
               id: user.id,
               email: user.email,
             },
-            process.env.JWT_SECRET!,
+            process.env.JWT_SECRET!
           ),
         },
       });
@@ -185,7 +218,7 @@ const handler = server({
                       z.object({ "@_xmlUrl": z.string() }),
                     ])
                     .optional(),
-                }),
+                })
               ),
             }),
           }),
@@ -203,7 +236,7 @@ const handler = server({
             ? Array.isArray(outline)
               ? outline.map((outline) => outline["@_xmlUrl"])
               : [outline["@_xmlUrl"]]
-            : [],
+            : []
       );
 
       const sources = [];
@@ -224,6 +257,52 @@ const handler = server({
       });
 
       return db.source.findUniqueOrThrow({ where: { id: sourceId } });
+    },
+    createGroup: (
+      { sourceIds, excludeFromGlobalView, name, icon },
+      { userId }
+    ) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.create({
+        data: {
+          excludeFromGlobalView,
+          name,
+          icon,
+          subscriptions: {
+            connect: sourceIds.map((sourceId) => ({
+              userId_sourceId: { userId, sourceId },
+            })),
+          },
+        },
+      });
+    },
+    updateGroup: (
+      { groupId, sourceIds, excludeFromGlobalView, name, icon },
+      { userId }
+    ) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.update({
+        where: { id: groupId },
+        data: {
+          excludeFromGlobalView,
+          name,
+          icon,
+          subscriptions: {
+            set: sourceIds.map((sourceId) => ({
+              userId_sourceId: { userId, sourceId },
+            })),
+          },
+        },
+      });
+    },
+    deleteGroup: ({ groupId }, { userId }) => {
+      if (!userId) throw new Error("No JWT");
+
+      return db.group.delete({
+        where: { id: groupId, subscriptions: { some: { userId } } },
+      });
     },
   },
 });

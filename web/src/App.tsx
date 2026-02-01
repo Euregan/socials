@@ -5,8 +5,8 @@ import { Signup } from "./pages/Signup";
 import { useUser } from "./hooks/useUser";
 import { Admin } from "./pages/Admin";
 import type { SourceType } from "./api";
-import * as style from "./App.css";
 import { Settings } from "./pages/Settings";
+import * as style from "./App.css";
 
 const sourceRouteParamToSourceType = {
   rss: "RSS",
@@ -36,6 +36,9 @@ const App = () => {
 
             <Route path="/">
               <Feed />
+            </Route>
+            <Route path="/group/:group">
+              {(params) => <Feed groupId={Number(params.group)} />}
             </Route>
             <Route path="/source/:source">
               {(params) =>

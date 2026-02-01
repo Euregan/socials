@@ -18,6 +18,7 @@ export const input = style({
   border: `1.5px solid ${theme.color.foreground.active}`,
 
   color: "white",
+  background: "white",
   ":checked": {
     color: theme.color.foreground.active,
   },

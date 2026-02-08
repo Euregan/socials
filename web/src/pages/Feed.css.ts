@@ -1,6 +1,7 @@
 import { style } from "@vanilla-extract/css";
 import { theme } from "../theme.css";
-import { stack } from "../components/utilities.css";
+import { row, stack } from "../components/utilities.css";
+import * as button from "../components/form/Button.css";
 
 export const empty = style({
   height: "100%",
@@ -18,10 +19,24 @@ export const feed = style({
   overflow: "hidden",
 });
 
-export const items = style([
+export const itemsWrapper = style([
   stack(),
   {
     height: "100%",
+    overflow: "hidden",
+  },
+]);
+
+export const actions = style([
+  row({ horizontalAlignment: "spread" }),
+  {
+    vars: { [button.height]: "24px", [button.iconSize]: "16px" },
+  },
+]);
+
+export const items = style([
+  stack(),
+  {
     overflow: "auto",
     // Small hack to keep the scrollbar away from the content
     paddingRight: `calc(${theme.spacing.large} / 2)`,

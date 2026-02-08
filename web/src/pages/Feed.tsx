@@ -4,14 +4,16 @@ import { ItemCard } from "../ui/ItemCard";
 import { ItemDetails, type Item } from "../ui/ItemDetails";
 import { useSources } from "../hooks/useSources";
 import * as style from "./Feed.css";
+import { Button } from "../components/form/Button";
+import { RefreshCw } from "lucide-react";
 
 type FeedProps = {
   source?: SourceType;
-  groupId?: Number;
+  groupId?: number;
 };
 
 export const Feed = ({ source, groupId }: FeedProps) => {
-  const [, , items] = useUnseenQuery([
+  const [, , items, refresh] = useUnseenQuery([
     "id",
     "title",
     "description",
@@ -43,9 +45,10 @@ export const Feed = ({ source, groupId }: FeedProps) => {
           (!source || item.source.type === source) &&
           (groupId ||
             !item.source.groups.some((group) => group.excludeFromGlobalView)) &&
-          (!groupId || item.source.groups.some((group) => group.id === groupId))
+          (!groupId ||
+            item.source.groups.some((group) => group.id === groupId)),
       ),
-    [items, source, groupId]
+    [items, source, groupId],
   );
   const [displayedItems, setDisplayedItems] = useState(filteredItems);
 
@@ -57,7 +60,7 @@ export const Feed = ({ source, groupId }: FeedProps) => {
     if (!displayedItems || !selectedItem) return;
 
     const currentIndex = displayedItems?.findIndex(
-      (item) => item.id === selectedItem.id
+      (item) => item.id === selectedItem.id,
     );
     const previousItem =
       currentIndex >= 0 ? displayedItems[currentIndex - 1] : null;
@@ -84,7 +87,7 @@ export const Feed = ({ source, groupId }: FeedProps) => {
     }
 
     const currentIndex = displayedItems?.findIndex(
-      (item) => item.id === selectedItem.id
+      (item) => item.id === selectedItem.id,
     );
     const nextItem =
       currentIndex >= 0 ? displayedItems[currentIndex + 1] : null;
@@ -127,33 +130,49 @@ export const Feed = ({ source, groupId }: FeedProps) => {
 
       {sources.length > 0 && (
         <>
-          <ul
-            className={style.items}
-            onKeyDown={(event) => {
-              if (["ArrowUp", "ArrowDown"].includes(event.key)) {
-                event.preventDefault();
-              }
-            }}
-          >
-            {displayedItems?.map((item, index) => (
-              <li
-                key={item.id}
-                ref={(card) => {
-                  if (card) itemCardsRefs.current[index] = card;
+          <div className={style.itemsWrapper}>
+            <div className={style.actions}>
+              <div>
+                {displayedItems?.filter((item) => item.seenAt !== null).length}/
+                {displayedItems?.length}
+              </div>
+              <Button
+                onClick={async () => {
+                  await refresh();
+                  setSelectedItem(null);
                 }}
               >
-                <ItemCard
-                  highlighted={selectedItem?.id === item.id}
-                  item={item}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    setSelectedItem(item);
+                <RefreshCw />
+              </Button>
+            </div>
+            <ul
+              className={style.items}
+              onKeyDown={(event) => {
+                if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              {displayedItems?.map((item, index) => (
+                <li
+                  key={item.id}
+                  ref={(card) => {
+                    if (card) itemCardsRefs.current[index] = card;
                   }}
-                />
-              </li>
-            ))}
-          </ul>
+                >
+                  <ItemCard
+                    highlighted={selectedItem?.id === item.id}
+                    item={item}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      event.preventDefault();
+                      setSelectedItem(item);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <div className={style.details}>
             {selectedItem && (
@@ -166,8 +185,8 @@ export const Feed = ({ source, groupId }: FeedProps) => {
                     items?.map((item) =>
                       item.id === selectedItem.id
                         ? { ...item, seenAt: new Date() }
-                        : item
-                    )
+                        : item,
+                    ),
                   );
                   setSelectedItem({ ...selectedItem, seenAt: new Date() });
                 }}
@@ -176,8 +195,8 @@ export const Feed = ({ source, groupId }: FeedProps) => {
                     items?.map((item) =>
                       item.id === selectedItem.id
                         ? { ...item, seenAt: null }
-                        : item
-                    )
+                        : item,
+                    ),
                   );
                   setSelectedItem({ ...selectedItem, seenAt: null });
                 }}

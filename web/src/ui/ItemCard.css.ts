@@ -10,6 +10,7 @@ const itemBase = style([
     transition: "background .1s ease-out, color .2s ease-out",
     padding: theme.spacing.small,
     borderRadius: `calc(4px + ${theme.spacing.small})`,
+    overflow: "hidden",
   },
 ]);
 export const item = styleVariants({

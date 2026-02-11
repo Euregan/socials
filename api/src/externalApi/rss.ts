@@ -38,7 +38,7 @@ export const fetchFeed = async (url: string) => {
         : "";
 
       const thumbnail =
-        markdown.match(/^!\[\]\((.+?)\)/)?.[1] ??
+        markdown.match(/^!\[.*?\]\((.+?)\)/)?.[1] ??
         markdown.match(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/)?.[1] ??
         markdown.match(/^\[!\[\]\((.+?)\).*?\]\(.+?\)/)?.[1] ??
         null;
@@ -46,7 +46,7 @@ export const fetchFeed = async (url: string) => {
       return {
         ...item,
         content: markdown
-          .replace(/^!\[\]\((.+?)\)/, "")
+          .replace(/^!\[.*?\]\((.+?)\)/, "")
           .replace(/^\[!\[.+?\]\((.+?)\)\]\(.+?\)/, "")
           .replace(/^\[!\[\]\((.+?)\).*?\]\(.+?\)/, "")
           .replace(/^\s+/, ""),

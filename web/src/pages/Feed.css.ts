@@ -49,4 +49,8 @@ export const details = style({
   maxWidth: 800,
   margin: "0 auto",
   width: "100%",
+  overflow: "auto",
+  // Some padding to create a gap between the scroll bar and the content
+  paddingRight: 50,
+  transform: "translateX(25px)",
 });

@@ -87,7 +87,7 @@ youtubeRouter.post(
       response.status(200).end();
 
       const subscriptions = await db.subscription.findMany({
-        where: { sourceId: source.id },
+        where: { sourceId: source.id, subscribedAt: { lte: item.publishedAt } },
       });
 
       for (const subscription of subscriptions) {

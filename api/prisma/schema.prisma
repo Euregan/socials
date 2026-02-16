@@ -61,6 +61,8 @@ model Subscription {
   user     User   @relation(fields: [userId], references: [id])
   source   Source @relation(fields: [sourceId], references: [id])
 
+  subscribedAt DateTime @default(now())
+
   groups Group[]
 
   @@unique([userId, sourceId])
